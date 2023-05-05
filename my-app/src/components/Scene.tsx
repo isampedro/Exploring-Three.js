@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
 import {ArcballControls} from "three/examples/jsm/controls/ArcballControls";
 import {GUI} from "dat.gui";
@@ -6,13 +6,11 @@ import {GUI} from "dat.gui";
 const Scene = () => {
     const sceneRef = useRef<HTMLDivElement>(null);
     const [arcBallEnabled, setArcBallEnabled] = useState(true);
-    const [selectedLight, setSelectedLight] = useState(false);
+    const [cylinderRadius, setCylinderRadius] = useState(1)
 
     const createSpotlight = (color: number) => {
         const newObj = new THREE.SpotLight(color, 100);
-
         newObj.castShadow = true;
-        // Dispersion
         newObj.angle = 0.3;
         newObj.penumbra = 0.2;
         newObj.decay = 2;
@@ -33,11 +31,8 @@ const Scene = () => {
 
     const createPlane = () => {
         const geometry = new THREE.PlaneGeometry(2000, 2000);
-        const material = new THREE.MeshStandardMaterial({color: 0x808080});
-        const plane = new THREE.Mesh(geometry, material);
-        plane.castShadow = true;
-        plane.receiveShadow = true;
-        return plane;
+        const material = new THREE.MeshBasicMaterial({color: 0x000000});
+        return new THREE.Mesh(geometry, material);
     };
 
     const createCamera = () => {
@@ -47,6 +42,15 @@ const Scene = () => {
         camera.lookAt(0, 0, 0);
         return camera;
     };
+
+    const createCylinder = () => {
+        const cylinderGeometry = new THREE.CylinderGeometry( cylinderRadius, cylinderRadius, 1000, 32 );
+        const cylinderMaterial = new THREE.MeshStandardMaterial( {color: 0x808080} );
+        const cylinder = new THREE.Mesh( cylinderGeometry, cylinderMaterial );
+        cylinder.position.set(0, 0, 0);
+        cylinder.castShadow = true;
+        return cylinder;
+    }
 
     useEffect(() => {
         const scene = new THREE.Scene();
@@ -58,6 +62,9 @@ const Scene = () => {
         scene.add(plane);
         const camera = createCamera();                          // CAMERA
 
+        const cylinder = createCylinder();
+        scene.add( cylinder );
+
         // To rotate scene
         const controls = new ArcballControls(camera, renderer.domElement, scene);
 
@@ -65,13 +72,23 @@ const Scene = () => {
         const gui = new GUI();
 
         // SPOTLIGHT #1
-        const spotLight1 = createSpotlight(0x00FF00);
+        const spotLight1 = createSpotlight(0xFF0000);
+        spotLight1.position.y = 60;
+        spotLight1.target.position.set(25, 60, 20);
+        spotLight1.target.updateMatrixWorld(); // update the spotlight's target matrix
+        spotLight1.lookAt(spotLight1.target.position); // make the spotlight look at the target
         // SPOTLIGHT #2
-        const spotLight2 = createSpotlight(0xFF0000);
-        spotLight2.position.y = 60;
+
+        const spotLight2 = createSpotlight(0x00FF00);
+        spotLight2.target.position.set(25, 0, 20);
+        spotLight2.target.updateMatrixWorld(); // update the spotlight's target matrix
+        spotLight2.lookAt(spotLight2.target.position); // make the spotlight look at the target
         // SPOTLIGHT #3
         const spotLight3 = createSpotlight(0x0000FF);
         spotLight3.position.y = -60;
+        spotLight3.target.position.set(25, -60, 20);
+        spotLight3.target.updateMatrixWorld(); // update the spotlight's target matrix
+        spotLight3.lookAt(spotLight2.target.position); // make the spotlight look at the target
 
         // GUI folders
         const controlsFolder = gui.addFolder("Controls");
@@ -95,6 +112,11 @@ const Scene = () => {
         controlsFolder.add({arcBallEnabled}, "arcBallEnabled").onChange((value) => {
             setArcBallEnabled(value);
             controls.enabled = value;
+        });
+        controlsFolder.add({cylinderRadius}, "cylinderRadius").onChange((value) => {
+            setCylinderRadius(value);
+            cylinder.geometry.dispose();
+            cylinder.geometry = new THREE.CylinderGeometry(value, value, 1000, 32);
         });
         controlsFolder.open();
 
