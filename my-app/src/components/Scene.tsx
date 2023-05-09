@@ -10,7 +10,7 @@ const Scene = () => {
     const [cylinderRadius, setCylinderRadius] = useState<number>(1);
     const [seePlane, setSeePlane] = useState<boolean>(false);
     const [gridEnabled, setGridEnabled] = useState<boolean>(true);
-    const [diffuse, setDiffuse] = useState<boolean>(true);
+    const [diffuse, setDiffuse] = useState<number>(1);
 
     const createSpotlight = (color: number, y: number) => {
         const newObj = new THREE.SpotLight(color, 100);
@@ -86,8 +86,10 @@ const Scene = () => {
     }
 
     const setupControlsGUI = (wholeScene: any) => {
-        wholeScene.controlsFolder.add({'Set Diffuse': wholeScene.cylinder.material.roughness}, 'Set Diffuse', 0, 1).onChange((value: number) => {
+        wholeScene.controlsFolder.add({diffuse}, 'diffuse', 0, 1).onChange((value: number) => {
             wholeScene.cylinder.material.roughness = value;
+            wholeScene.plane.material.roughness = value;
+            setDiffuse(value);
         });
         wholeScene.controlsFolder.addColor(wholeScene.spotLight1, "color").onChange(() => wholeScene.renderer.render(wholeScene.scene, wholeScene.camera));
         wholeScene.controlsFolder.add({'spotlight 1 angle': wholeScene.spotLight1.angle}, 'spotlight 1 angle', 0, Math.PI/4).onChange((value: number) => {
