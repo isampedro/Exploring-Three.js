@@ -10,6 +10,7 @@ const Scene = () => {
     const [cylinderRadius, setCylinderRadius] = useState<number>(1);
     const [seePlane, setSeePlane] = useState<boolean>(false);
     const [gridEnabled, setGridEnabled] = useState<boolean>(true);
+    const [diffuse, setDiffuse] = useState<boolean>(true);
 
     const createSpotlight = (color: number, y: number) => {
         const newObj = new THREE.SpotLight(color, 100);
@@ -53,6 +54,7 @@ const Scene = () => {
     const createCylinder = () => {
         const cylinderGeometry = new THREE.CylinderGeometry( cylinderRadius, cylinderRadius, 500, 32 );
         const cylinderMaterial = new THREE.MeshStandardMaterial( {color: 0x808080} );
+        cylinderMaterial.roughness = 1; // DIFFUSE
         const cylinder = new THREE.Mesh( cylinderGeometry, cylinderMaterial );
         cylinder.position.set(0, 0, 0);
         cylinder.castShadow = true;
@@ -77,13 +79,16 @@ const Scene = () => {
                 controlsFolder: scene.gui.addFolder("Controls"),
                 controls: new ArcballControls(scene.camera, scene.renderer.domElement, scene.scene),
                 axesHelper: new THREE.AxesHelper(1),
-                lightHelper1: new THREE.SpotLightHelper(scene.spotLight1),
-                lightHelper2: new THREE.SpotLightHelper(scene.spotLight2),
-                lightHelper3: new THREE.SpotLightHelper(scene.spotLight3),
+                // lightHelper1: new THREE.SpotLightHelper(scene.spotLight1),
+                // lightHelper2: new THREE.SpotLightHelper(scene.spotLight2),
+                // lightHelper3: new THREE.SpotLightHelper(scene.spotLight3),
             }};
     }
 
     const setupControlsGUI = (wholeScene: any) => {
+        wholeScene.controlsFolder.add({'Set Diffuse': wholeScene.cylinder.material.roughness}, 'Set Diffuse', 0, 1).onChange((value: number) => {
+            wholeScene.cylinder.material.roughness = value;
+        });
         wholeScene.controlsFolder.addColor(wholeScene.spotLight1, "color").onChange(() => wholeScene.renderer.render(wholeScene.scene, wholeScene.camera));
         wholeScene.controlsFolder.add({'spotlight 1 angle': wholeScene.spotLight1.angle}, 'spotlight 1 angle', 0, Math.PI/4).onChange((value: number) => {
             wholeScene.spotLight1.angle = value;
@@ -134,15 +139,15 @@ const Scene = () => {
         wholeScene.gridHelper.rotation.x = Math.PI / 2;
         setupControlsGUI(wholeScene);
         wholeScene.scene.add(wholeScene.plane, wholeScene.cylinder, wholeScene.gridHelper, wholeScene.spotLight3,
-            wholeScene.spotLight2, wholeScene.spotLight1, wholeScene.axesHelper, wholeScene.lightHelper3, wholeScene.lightHelper2, wholeScene.lightHelper1);
+            wholeScene.spotLight2, wholeScene.spotLight1, wholeScene.axesHelper,/* wholeScene.lightHelper3, wholeScene.lightHelper2, wholeScene.lightHelper1*/);
 
         const animate = () => {
             if (arcBallEnabled) {
                 wholeScene.controls.update();
             }
-            if (wholeScene.lightHelper1) wholeScene.lightHelper1.update();
-            if (wholeScene.lightHelper2) wholeScene.lightHelper2.update();
-            if (wholeScene.lightHelper3) wholeScene.lightHelper3.update();
+            // if (wholeScene.lightHelper1) wholeScene.lightHelper1.update();
+            // if (wholeScene.lightHelper2) wholeScene.lightHelper2.update();
+            // if (wholeScene.lightHelper3) wholeScene.lightHelper3.update();
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
             requestAnimationFrame(animate);
         };
