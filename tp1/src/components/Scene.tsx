@@ -2,10 +2,30 @@ import React, {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
 import {ArcballControls} from "three/examples/jsm/controls/ArcballControls";
 import {GUI} from "dat.gui";
+import WallTower from "./objects/WallTower";
+import createWallTower from "./objects/WallTower";
+import createCastleTower from "./objects/CastleTower";
+import createCastleTowerHead from "./objects/CastleTowerHead";
 
 const Scene = () => {
     const sceneRef = useRef<HTMLDivElement>(null);
     const Size = 500, Divisions = 50;
+
+    const createSpotlight = (color: number, y: number) => {
+        const newObj = new THREE.SpotLight(color, 100);
+        newObj.castShadow = true;
+        newObj.angle = 0.3;
+        newObj.penumbra = 0.2;
+        newObj.decay = 2;
+        newObj.position.x = 300;
+        newObj.position.z = 50;
+        newObj.castShadow = true;
+        newObj.position.y = y;
+        newObj.target.position.set(25, y, 20);
+        newObj.target.updateMatrixWorld();
+        newObj.lookAt(newObj.target.position);
+        return newObj;
+    };
 
     const createRenderer = () => {
         const renderer = new THREE.WebGLRenderer();
@@ -14,12 +34,6 @@ const Scene = () => {
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         return renderer;
-    };
-
-    const createPlane = () => {
-        const geometry = new THREE.PlaneGeometry(200, 500);
-        const material = new THREE.MeshBasicMaterial({color: 0x00FF00});
-        return new THREE.Mesh(geometry, material);
     };
 
     const createCamera = () => {
@@ -35,32 +49,26 @@ const Scene = () => {
         let scene = {
             scene: new THREE.Scene(),
             renderer: createRenderer(),
-            plane: createPlane(),
             camera: createCamera(),
-            gridHelper: new THREE.GridHelper( Size, Divisions ),
-            gui: new GUI(),
-        }
-        return {...scene, ...{
-                controlsFolder: scene.gui.addFolder("Controls"),
+            gridHelper: new THREE.GridHelper(Size, Divisions),
+        };
+        return {
+            ...scene, ...{
                 controls: new ArcballControls(scene.camera, scene.renderer.domElement, scene.scene),
                 axesHelper: new THREE.AxesHelper(1),
-            }};
-    }
-
-    const setupControlsGUI = (wholeScene: any) => {
-        wholeScene.controlsFolder.open();
-        wholeScene.controls.addEventListener("change", function () {
-            wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
-        });
-    }
+            }
+        };
+    };
 
     useEffect(() => {
         const wholeScene = createScene();
 
+        wholeScene.renderer.shadowMap.enabled = true;
+        wholeScene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        sceneRef.current?.appendChild(wholeScene.renderer.domElement);
+        wholeScene.gridHelper.visible = true;
 
-        wholeScene.gridHelper.rotation.x = Math.PI / 2;
-        setupControlsGUI(wholeScene);
-        wholeScene.scene.add(wholeScene.plane, wholeScene.gridHelper, wholeScene.axesHelper);
+        wholeScene.scene.add(createCastleTowerHead());
 
         const animate = () => {
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
