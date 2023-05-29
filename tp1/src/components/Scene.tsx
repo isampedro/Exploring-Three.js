@@ -1,31 +1,15 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 import * as THREE from "three";
 import {ArcballControls} from "three/examples/jsm/controls/ArcballControls";
-import {GUI} from "dat.gui";
-import WallTower from "./objects/WallTower";
-import createWallTower from "./objects/WallTower";
-import createCastleTower from "./objects/CastleTower";
-import createCastleTowerHead from "./objects/CastleTowerHead";
+import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
+import createWholeWall from "./objects/Wall/WholeWall";
+import wholeWall from "./objects/Wall/WholeWall";
+import {create} from "domain";
+import createPlane from "./objects/Plane/Plane";
 
 const Scene = () => {
     const sceneRef = useRef<HTMLDivElement>(null);
     const Size = 500, Divisions = 50;
-
-    const createSpotlight = (color: number, y: number) => {
-        const newObj = new THREE.SpotLight(color, 100);
-        newObj.castShadow = true;
-        newObj.angle = 0.3;
-        newObj.penumbra = 0.2;
-        newObj.decay = 2;
-        newObj.position.x = 300;
-        newObj.position.z = 50;
-        newObj.castShadow = true;
-        newObj.position.y = y;
-        newObj.target.position.set(25, y, 20);
-        newObj.target.updateMatrixWorld();
-        newObj.lookAt(newObj.target.position);
-        return newObj;
-    };
 
     const createRenderer = () => {
         const renderer = new THREE.WebGLRenderer();
@@ -44,12 +28,26 @@ const Scene = () => {
         return camera;
     };
 
+    const createDirectionalLight = () => {
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        return new THREE.DirectionalLight(color, intensity);
+    }
+
+    const createAmbientLight = () => {
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        return new THREE.AmbientLight(color, intensity);
+    }
+
     const createScene = () => {
         // @ts-ignore
         let scene = {
             scene: new THREE.Scene(),
             renderer: createRenderer(),
             camera: createCamera(),
+            directionalLight: createDirectionalLight(),
+            ambientLight: createAmbientLight(),
             gridHelper: new THREE.GridHelper(Size, Divisions),
         };
         return {
@@ -67,9 +65,29 @@ const Scene = () => {
         wholeScene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         sceneRef.current?.appendChild(wholeScene.renderer.domElement);
         wholeScene.gridHelper.visible = true;
-
-        wholeScene.scene.add(createCastleTowerHead());
-
+        const {plane, bridge, water} = createPlane();
+        const planeGroup = new THREE.Group();
+        planeGroup.add(plane, bridge, water);
+        wholeScene.scene.add( wholeScene.camera, wholeScene.directionalLight, planeGroup);
+        const wholeWall = createWholeWall(new THREE.Vector3(0, 0, 0), 6);
+        const wallGroup = new THREE.Group();
+        for(const wall of wholeWall.walls) {
+            wallGroup.add(wall);
+        }
+        for( const wallTower of wholeWall.towers ) {
+            wallGroup.add(wallTower);
+        }
+        wholeScene.scene.add(wallGroup);
+        // const normals: VertexNormalsHelper[] = [];
+        // for(let i = 0; i < wholeWall.walls.length; i++) {
+        //     normals.push(new VertexNormalsHelper(wholeWall.walls[i], 1));
+        // }
+        // for(let i = 0; i < wholeWall.towers.length; i++) {
+        //     normals.push(new VertexNormalsHelper(wholeWall.towers[i], 1));
+        // }
+        // for( let i = 0; i < normals.length; i++ ) {
+        //     wholeScene.scene.add(normals[i]);
+        // }
         const animate = () => {
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
             requestAnimationFrame(animate);

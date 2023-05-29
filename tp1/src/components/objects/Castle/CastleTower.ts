@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {Mesh} from "three";
-import {createMeshFromLathe} from "./Meshes";
-import {getStep} from "./AuxiliarFunctions";
+import {createMeshFromLathe} from "../Meshes";
+import {getStep} from "../AuxiliarFunctions";
 
 const createCastleTower = (floorsCount: number): Mesh => {
     const narrowerPartHeight = floorsCount*2;
@@ -14,7 +14,7 @@ const createCastleTower = (floorsCount: number): Mesh => {
     step = getStep(from, to);
     shape.bezierCurveTo(from.x, from.y, from.x + step.x, from.y + step.y, to.x, to.y);
     from = to;
-    to = {x: -narrowerPartWidth, y: narrowerPartHeight}
+    to = {x: -narrowerPartWidth, y: narrowerPartHeight};
     step = getStep(from, to);
     shape.bezierCurveTo(from.x, from.y, from.x + step.x, from.y + step.y, to.x, to.y);
     from = to;

@@ -1,7 +1,7 @@
 import {Mesh} from "three";
 import * as THREE from "three";
-import {getStep} from "./AuxiliarFunctions";
-import {createMeshFromLathe} from "./Meshes";
+import {getStep} from "../AuxiliarFunctions";
+import {createMeshFromLathe} from "../Meshes";
 
 const createCastleTowerHead = (): Mesh => {
     const height = 4;
