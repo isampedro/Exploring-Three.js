@@ -6,6 +6,7 @@ import createWholeWall from "./objects/Wall/WholeWall";
 import wholeWall from "./objects/Wall/WholeWall";
 import {create} from "domain";
 import createPlane from "./objects/Plane/Plane";
+import createWholeCaste from "./objects/Castle/WholeCastle";
 
 const Scene = () => {
     const sceneRef = useRef<HTMLDivElement>(null);
@@ -24,6 +25,7 @@ const Scene = () => {
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.z = 100;
         camera.position.x = 25;
+        camera.position.y = 50;
         camera.lookAt(0, 0, 0);
         return camera;
     };
@@ -78,6 +80,11 @@ const Scene = () => {
             wallGroup.add(wallTower);
         }
         wholeScene.scene.add(wallGroup);
+
+        const wholeCastle = createWholeCaste(6);
+        const castleGroup = new THREE.Group();
+        castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
+        wholeScene.scene.add(castleGroup);
         // const normals: VertexNormalsHelper[] = [];
         // for(let i = 0; i < wholeWall.walls.length; i++) {
         //     normals.push(new VertexNormalsHelper(wholeWall.walls[i], 1));

@@ -1,7 +1,7 @@
 import {Mesh} from "three";
 import * as THREE from "three";
 import {getStep} from "../AuxiliarFunctions";
-import {createMeshFromLathe} from "../Meshes";
+import {createMeshFromLathe, createMeshFromLatheStandard} from "../Meshes";
 
 const createCastleTowerHead = (): Mesh => {
     const height = 4;
@@ -25,7 +25,7 @@ const createCastleTowerHead = (): Mesh => {
     step = getStep(from, to);
     shape.bezierCurveTo(from.x, from.y, from.x + step.x, from.y + step.y, to.x, to.y);
 
-    return createMeshFromLathe(shape, 0xFF0000);
+    return createMeshFromLathe(shape, 0x2e5797);
 }
 
 export default createCastleTowerHead;
