@@ -1,14 +1,15 @@
 import * as THREE from "three";
 import {Mesh} from "three";
 import {createMeshFromLatheStandard} from "../Meshes";
+import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 
 const createBridge = (): Mesh => {
     const planeBridgeGeometry = new THREE.PlaneGeometry(10, 17);
     const geometryMaterial = new THREE.MeshStandardMaterial({color: 0x3c8a3f, side: THREE.DoubleSide})
     const bridge = new THREE.Mesh(planeBridgeGeometry, geometryMaterial);
-    bridge.position.x = 0;
-    bridge.position.z = 47;
-    bridge.rotation.x = Math.PI / 2;
+    bridge.position.setX(0);
+    bridge.position.setZ(47);
+    bridge.rotation.set( Math.PI / 2, 0, 0);
 
     return bridge;
 }
@@ -41,17 +42,18 @@ const createWaterDisc = () => {
     const geometry = new THREE.RingGeometry( castleTerrainRadius, castleChannelRadius);
     const material = new THREE.MeshPhongMaterial( { color: 0x65aebf, side: THREE.DoubleSide } );
     const waterDisc = new THREE.Mesh( geometry, material );
-    waterDisc.position.y = -1;
-    waterDisc.rotation.x = Math.PI/2;
+    waterDisc.position.setY(-1);
+    waterDisc.rotation.set(Math.PI/2,0,0);
     return waterDisc;
 }
 
-const createPlane = (): { plane: Mesh, bridge: Mesh, water: Mesh } => {
+const createPlane = (): { plane: Mesh, bridge: Mesh, water: Mesh, normals: VertexNormalsHelper[] } => {
     const plane = createPlanePart();
     const bridge = createBridge();
     const water = createWaterDisc();
+    const normals = [new VertexNormalsHelper(bridge), new VertexNormalsHelper(water), new VertexNormalsHelper(plane)]
 
-    return {plane, bridge, water}
+    return {plane, bridge, water, normals}
 }
 
 export default createPlane;

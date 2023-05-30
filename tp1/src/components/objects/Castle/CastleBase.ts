@@ -29,9 +29,9 @@ const createWindowsAtFront = (z: number, height: number, width: number, wss: num
     for( let i = wsh; i < height; i+= wsh) {
         for( let j = wss/2; j < width-wss/2; j+= wss) {
             const window = createWindow();
-            window.position.y = i;
-            window.position.x = (j-width/2);
-            window.position.z = z;
+            window.position.setY(i);
+            window.position.setX(j-width/2);
+            window.position.setZ(z);
             windows.push(window)
         }
     }
@@ -43,10 +43,10 @@ const createWindowsAtSides = (x: number, height: number, depth: number, wss: num
     for( let i = wsh; i < height; i+= wsh) {
         for( let j = wss; j < depth-wss; j+= wss) {
             const window = createWindow();
-            window.position.y = i;
-            window.position.z = (j-depth/2);
-            window.position.x = x;
-            window.rotation.y = Math.PI/2;
+            window.position.setY(i);
+            window.position.setZ(j-depth/2);
+            window.position.setX(x);
+            window.rotation.set(0, Math.PI/2, 0);
             windows.push(window)
         }
     }
@@ -63,7 +63,7 @@ const createCastleBase = (floorsCount: number): { castleBase: Mesh, windows: Mes
     material.emissive = new Color(0xc4c291);
     material.emissiveIntensity = 0.05;
     const castleBase = new THREE.Mesh( geometry, material );
-    castleBase.position.y = height/2;
+    castleBase.position.setY(height/2);
 
     const windowsSeparationSides = 3.0, windowsSeparationHeight = 4.0;
     const windows: Mesh[] = [];

@@ -13,7 +13,7 @@ const createWheel = (height: number): Group => {
     materialGear.emissive = new Color(colorGear);
     materialGear.emissiveIntensity = 0.1;
     const gear = new Mesh(geometryGear, materialGear);
-    gear.position.y = height/2;
+    gear.position.setY(height/2);
     return new Group().add(gear).add(greaterWheel);
 }
 

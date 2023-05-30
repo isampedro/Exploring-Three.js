@@ -2,42 +2,73 @@ import createCastleBase from "./CastleBase";
 import {Group, Mesh} from "three";
 import createCastleTower from "./CastleTower";
 import createCastleTowerHead from "./CastleTowerHead";
+import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
+import castleBase from "./CastleBase";
 
-const createWholeCaste = (floors: number): { base: { castleBase: Mesh, windows: Group }, towers: Group } => {
+const createWholeCaste = (floors: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
     const base = createCastleBase(floors);
     const width = 17;
     const depth = 13;
 
     const towerGroup1 = new Group(), towerGroup2 = new Group(), towerGroup3 = new Group(), towerGroup4 = new Group();
     const towers = new Group();
-    const towerHeads = [createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead()];
-    towerHeads[0].position.y = floors*3 + 4 + .5;
-    towerHeads[1].position.y = floors*3 + 4 + .5;
-    towerHeads[2].position.y = floors*3 + 4 + .5;
-    towerHeads[3].position.y = floors*3 + 4 + .5;
+    const towerHeads = [createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead()]
+    const towerObjects = [createCastleTower(floors), createCastleTower(floors), createCastleTower(floors), createCastleTower(floors)]
 
-    towerGroup1.add(createCastleTower(floors), towerHeads[0]);
-    towerGroup2.add(createCastleTower(floors), towerHeads[1]);
-    towerGroup3.add(createCastleTower(floors), towerHeads[2]);
-    towerGroup4.add(createCastleTower(floors), towerHeads[3]);
+    const vertexNormalsHelpers: VertexNormalsHelper[] = [];
+    for( const tower of towerObjects ) {
+        vertexNormalsHelpers.push(new VertexNormalsHelper(tower));
+    }
+    for( const towerHead of towerHeads ) {
+        vertexNormalsHelpers.push(new VertexNormalsHelper(towerHead));
+    }
+    for( const window of base.windows ) {
+        vertexNormalsHelpers.push(new VertexNormalsHelper(window));
+    }
+    vertexNormalsHelpers.push(new VertexNormalsHelper(base.castleBase));
 
-    towerGroup1.position.x = width/2;
-    towerGroup1.position.z = depth/2;
-    towerGroup2.position.x = -width/2;
-    towerGroup2.position.z = depth/2;
-    towerGroup3.position.x = -width/2;
-    towerGroup3.position.z = -depth/2;
-    towerGroup4.position.x = width/2;
-    towerGroup4.position.z = -depth/2;
+    towerHeads[0].position.setY(floors*3 + 4 + .5);
+    towerHeads[1].position.setY(floors*3 + 4 + .5);
+    towerHeads[2].position.setY(floors*3 + 4 + .5);
+    towerHeads[3].position.setY(floors*3 + 4 + .5);
+
+    towerGroup1.add(towerObjects[0], towerHeads[0]);
+    towerGroup2.add(towerObjects[1], towerHeads[1]);
+    towerGroup3.add(towerObjects[2], towerHeads[2]);
+    towerGroup4.add(towerObjects[3], towerHeads[3]);
+
+    towerGroup1.position.setX(width/2);
+    towerGroup1.position.setZ(depth/2);
+    towerGroup2.position.setX(-width/2);
+    towerGroup2.position.setZ(depth/2);
+    towerGroup3.position.setX(-width/2);
+    towerGroup3.position.setZ(-depth/2);
+    towerGroup4.position.setX(width/2);
+    towerGroup4.position.setZ(-depth/2);
 
     towers.add(towerGroup1, towerGroup2, towerGroup3, towerGroup4);
+    towers.traverse(tower => {
+        if( tower instanceof Group ) {
+            tower.traverse(object => {
+                if( object instanceof Mesh ) {
+                    object.geometry.computeVertexNormals();
+                    object.geometry.computeTangents();
+                    object.geometry.computeBoundingBox();
+                    object.geometry.computeBoundingSphere();
+                }
+            })
+        } else if( tower instanceof Mesh ) {
+            tower.geometry.computeVertexNormals();
+            tower.geometry.computeTangents();
+        }
+    });
 
     const windows = new Group();
     for( const window of base.windows) {
         windows.add(window);
     }
 
-    return {base: {castleBase: base.castleBase, windows}, towers};
+    return {base: {castleBase: base.castleBase, windows}, towers, normals: vertexNormalsHelpers};
 }
 
 export default createWholeCaste;

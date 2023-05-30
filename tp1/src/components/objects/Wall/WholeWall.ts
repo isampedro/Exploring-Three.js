@@ -1,6 +1,7 @@
 import {Mesh, Scene, Vector3} from "three";
 import createWallTower from "./WallTower";
 import createWall from "./CastleWall";
+import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 
 
 const positionWallTowersInScene = (center: Vector3, towers: Mesh[]) => {
@@ -43,7 +44,7 @@ const positionWallsInScene = (center: Vector3, walls: Mesh[]) => {
     walls[5].rotation.y = Math.PI/2;
 }
 
-const createWholeWall = (center: Vector3, floors: number): {walls: Mesh[], towers: Mesh[]} => {
+const createWholeWall = (center: Vector3, floors: number): {walls: Mesh[], towers: Mesh[], normals: VertexNormalsHelper[]} => {
     const wallLength = 34*0.7;
     const towers = [createWallTower(floors), createWallTower(floors), createWallTower(floors),
         createWallTower(floors), createWallTower(floors), createWallTower(floors)];
@@ -53,7 +54,15 @@ const createWholeWall = (center: Vector3, floors: number): {walls: Mesh[], tower
     positionWallTowersInScene(center, towers);
     positionWallsInScene(center, walls);
 
-    return {walls, towers};
+    const normals: VertexNormalsHelper[] = [];
+    for( const tower of towers ) {
+        normals.push(new VertexNormalsHelper(tower));
+    }
+    for( const wall of walls ) {
+        normals.push(new VertexNormalsHelper(wall));
+    }
+
+    return {walls, towers, normals};
 }
 
 export default createWholeWall;
