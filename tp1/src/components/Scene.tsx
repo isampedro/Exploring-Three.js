@@ -166,7 +166,7 @@ const Scene = () => {
             group.rotation.x = degToRad(value);
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.castleFolder.add({Anchura: width}, "Anchura", 10, 20).onChange((value: number) => {
+        wholeScene.castleFolder.add({Anchura: width}, "Anchura", 10, 25).onChange((value: number) => {
             wholeScene.scene.remove(castleGroup);
             width = value;
             castleGroup.clear();
@@ -183,12 +183,17 @@ const Scene = () => {
             wholeScene.scene.add(castleGroup);
         });
         wholeScene.castleFolder.add({Pisos: floors}, "Pisos", 4, 10).onChange((value: number) => {
-            wholeScene.scene.remove(castleGroup);
             floors = value;
             castleGroup.clear();
+            wholeScene.scene.remove(...normals, castleGroup);
             wholeCastle = createWholeCaste(floors, width, depth);
             castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
+            for( const normal of normals) {
+                normal.update();
+            }
+            wholeScene.scene.add(...normals);
             wholeScene.scene.add(castleGroup);
+            wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
         wholeScene.castleFolder.add({'Altura Murallas': floorsWall}, "Altura Murallas", 3, 10).onChange((value: number) => {
             wholeScene.scene.remove(wallGroup, wholeWall.bridge);

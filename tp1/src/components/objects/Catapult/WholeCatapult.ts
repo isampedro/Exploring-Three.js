@@ -1,4 +1,4 @@
-import {Group, Mesh} from "three";
+import {BoxGeometry, Color, Group, Mesh, MeshPhongMaterial} from "three";
 import createCatapultBase from "./Base";
 import createCatapultStandPart from "./Stand";
 import createCatapultCylinder from "./Cylinder";
@@ -60,6 +60,18 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], c
     const wheels = createWheels(wheelSize, width, depth, baseHeight);
     const stick = createStick(stickWidth, stickWidth, depth);
     const shovelHead = createShovelHead(shovelHeadWidth, stickWidth, shovelHeadWidth);
+    const counterweightDim = .5;
+    const counterweightGeometry = new BoxGeometry(counterweightDim, counterweightDim, counterweightDim);
+    const counterweightMaterial = new MeshPhongMaterial({color: 0xc4c291});
+    counterweightMaterial.emissive = new Color(0xc4c291);
+    counterweightMaterial.emissiveIntensity = 0.05
+    const counterweight = new Mesh(counterweightGeometry, counterweightMaterial);
+
+    const standsCounterWeightGeometry = new BoxGeometry(counterweightDim/4, counterweightDim/2, counterweightDim/8);
+    const standsCounterWeightMaterial = new MeshPhongMaterial({color: 0x7b5f44});
+    standsCounterWeightMaterial.emissive = new Color(0x7b5f44);
+    standsCounterWeightMaterial.emissiveIntensity = 0.05
+    const standsCounterWeight = new Mesh(standsCounterWeightGeometry,standsCounterWeightMaterial)
     const normals: VertexNormalsHelper[] = [];
 
     stick.position.setY(.02);
@@ -95,7 +107,11 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], c
         normals.push(new VertexNormalsHelper(stand));
     }
 
-    cylinder.add(stick, shovelHead);
+    cylinder.add(stick, shovelHead, counterweight, standsCounterWeight);
+    counterweight.position.z += 1;
+    counterweight.position.x -= .3;
+    standsCounterWeight.position.z +=1;
+    standsCounterWeight.position.y +=.02;
     group.add(base, ...stands, ...wheels, cylinder);
     return {group, normals, cylinder, shovelHead};
 }
