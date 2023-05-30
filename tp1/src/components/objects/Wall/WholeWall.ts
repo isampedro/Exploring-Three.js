@@ -58,8 +58,11 @@ const createWholeWall = (center: Vector3, floors: number): {walls: Mesh[], tower
     const shape = new Shape();
     shape.moveTo(0, 0);
     shape.lineTo(10, 0);
-    const planeBox = createFromExtrude(shape, 0x201313,floors);
-    planeBox.position.setZ(center.z + 30*.7);
+    shape.lineTo(10, .5);
+    shape.lineTo(0, .2);
+    shape.lineTo(0, 0);
+    const planeBox = createFromExtrude(shape, 0x201313,floors*1.3);
+    planeBox.position.setZ(center.z + 30*.7 + 1.8);
     planeBox.position.setX(center.y - 5)
     planeBox.rotation.x = -Math.PI/2;
     positionWallTowersInScene(center, towers);
