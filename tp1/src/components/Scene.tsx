@@ -303,22 +303,16 @@ const Scene = () => {
             }
             if (isFlying && ball) {
                 t += .01;
+                const initialVerticalSpeed = 1;
                 if (ball.position.y < 0) {
                     t = 0;
                     wholeScene.scene.remove(ball);
                     isFlying = false;
                 } else {
                    // console.log(ball.position.y, (.25**2+.1**2+.1**2)/(Math.sqrt(2)*2*.001), ballIsGoingDown)
-                    ball.position.x += dir.x * 0.2;
-                    ball.position.z += dir.z * 0.2;
-                    if(!ballIsGoingDown && ball.position.y < (.25**2+.1**2+.1**2)/(Math.sqrt(2)*2*.001)){
-                        ball.position.y += (t**2)*0.1;
-                    }
-                    else {
-                        console.log('stop')
-                        ball.position.y -= (t**2)*0.1;
-                        ballIsGoingDown = true;
-                    }
+                    ball.position.x += dir.x * .5;
+                    ball.position.z += dir.z * .5;
+                        ball.position.y += .5 - (t**2);
                 }
             }
             requestAnimationFrame(animate);
