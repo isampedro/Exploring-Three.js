@@ -11,7 +11,7 @@ import {
     Group,
     Mesh,
     MeshPhongMaterial,
-    MeshStandardMaterial,
+    MeshStandardMaterial, Object3D,
     Sphere,
     SphereGeometry,
     Vector3
@@ -107,6 +107,23 @@ const Scene = () => {
         catapult.position.setZ(50);
         const center = new Vector3(0, 0, 0);
         catapult.lookAt(new Vector3(0, 0, 0));
+        const updateMesh = (item: Object3D, visited = new Set()) => {
+            if (visited.has(item)) {
+                return; // Skip already visited objects
+            }
+            visited.add(item);
+            if (item instanceof Mesh) {
+                item.geometry.computeTangents();
+                item.geometry.computeVertexNormals();
+                item.geometry.computeBoundingSphere();
+                item.geometry.computeBoundingBox();
+            } else if (item instanceof Group) {
+                item.children.forEach(child => updateMesh(child, visited));
+            }
+        };
+
+        catapult.traverse(item => updateMesh(item));
+        wholeWall.bridge.geometry.computeVertexNormals();
 
         let width = 17, depth = 13, floors = 6;
         let wholeCastle = createWholeCaste(floors, width, depth);
@@ -114,15 +131,16 @@ const Scene = () => {
         castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
         castleGroup.castShadow = true;
         const normals = [...wholeCastle.normals, ...catapultNormals, ...wholeWall.normals, ...planeNormals];
-        for (const normal of normals) {
-            normal.update();
-            normal.visible = false;
+        for(let i = 0; i < normals.length; i++) {
+            normals[i].update();
+            normals[i].visible = false;
         }
         wholeScene.scene.add(castleGroup, wallGroup, wholeScene.camera, wholeScene.directionalLight, planeGroup, catapult
             , ...normals, wholeWall.bridge);
         wholeScene.renderingFolder.add({'Mapa de normales': normalsEnabled}, "Mapa de normales").onChange((value: boolean) => {
             setNormalsEnabled(value);
             for (const normal of normals) {
+                normal.update();
                 normal.visible = value;
             }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
@@ -134,6 +152,9 @@ const Scene = () => {
             const catapultPosition = catapultOffset.applyMatrix4(rotationMatrix);
             catapult.position.copy(catapultPosition);
             catapult.lookAt(center);
+            for(const normal of normals ) {
+                normal.update();
+            }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
         const parent = new THREE.Object3D();
@@ -236,6 +257,10 @@ const Scene = () => {
                 isThrowing = true;
                 // cylinder.rotation.x = Math.PI/4;
             } else if ((event.key === 'R' || event.key === 'r') && !isGoingDown && !isThrowing) {
+                isThrowing = false;
+                isGoingDown = false;
+                isFlying = false;
+                if( ball ) wholeScene.scene.remove(ball);
                 const ballGeometry = new SphereGeometry(.2);
                 const ballMaterial = new MeshPhongMaterial({color: 0xa6a7ab});
                 ball = new Mesh(ballGeometry, ballMaterial);
@@ -248,6 +273,7 @@ const Scene = () => {
         let isFlying = false;
         let dir = new Vector3();
         let ballIsGoingDown = false;
+        let t = 0;
         const animate = () => {
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
             if (isThrowing && cylinder.rotation.x < Math.PI / 4) {
@@ -271,20 +297,22 @@ const Scene = () => {
                 isGoingDown = false;
             }
             if (isFlying && ball) {
+                t += .01;
                 if (ball.position.y < 0) {
+                    t = 0;
                     wholeScene.scene.remove(ball);
                     isFlying = false;
                 } else {
+                   // console.log(ball.position.y, (.25**2+.1**2+.1**2)/(Math.sqrt(2)*2*.001), ballIsGoingDown)
                     ball.position.x += dir.x * 0.2;
                     ball.position.z += dir.z * 0.2;
                     if(!ballIsGoingDown && ball.position.y < (.25**2+.1**2+.1**2)/(Math.sqrt(2)*2*.001)){
-                        ball.position.y -= dir.z * 0.2;
+                        ball.position.y += (t**2)*0.1;
                     }
-                    else if(!ballIsGoingDown && ball.position.y >= (.1**2+.1**2+.25**2)/(Math.sqrt(2)*2*.001)) {
-                        ball.position.y += dir.z * 0.2;
+                    else {
+                        console.log('stop')
+                        ball.position.y -= (t**2)*0.1;
                         ballIsGoingDown = true;
-                    } else if( ballIsGoingDown ) {
-                        ball.position.y += dir.z * 0.2;
                     }
                 }
             }
