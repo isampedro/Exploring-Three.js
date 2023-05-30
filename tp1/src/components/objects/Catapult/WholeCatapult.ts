@@ -47,7 +47,7 @@ const createStands = (standHeight: number, width: number, height: number, depth:
     return stands;
 }
 
-const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[]} => {
+const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], cylinder: Mesh, shovelHead: Mesh} => {
     const group = new Group();
     const width = 2.5, depth = 4,baseHeight = .5, height = .2, standHeight = 3;
     const wheelSize = baseHeight/4;
@@ -62,12 +62,13 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[]} =
     const shovelHead = createShovelHead(shovelHeadWidth, stickWidth, shovelHeadWidth);
     const normals: VertexNormalsHelper[] = [];
 
-    stick.position.setY(standHeight + .05);
-    stick.position.setX(+.1);
-    stick.position.setZ( 0);
-    shovelHead.position.setY(standHeight + .05);
-    shovelHead.position.setX(+.1);
-    shovelHead.position.setZ( 0);
+    stick.position.setY(.02);
+    stick.position.setX(+.05);
+    stick.position.setZ(-1);
+    shovelHead.position.setY(.02);
+    shovelHead.position.setX(+.05);
+    shovelHead.position.setZ(-3);
+    shovelHead.rotation.z = -Math.PI/2
 
     base.position.setY(baseHeight);
 
@@ -78,22 +79,25 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[]} =
 
     cylinder.geometry.computeTangents();
     cylinder.geometry.computeVertexNormals();
-    normals.push(new VertexNormalsHelper(cylinder))
+    normals.push(new VertexNormalsHelper(cylinder));
     stick.geometry.computeTangents();
     stick.geometry.computeVertexNormals();
-    normals.push(new VertexNormalsHelper(stick))
+    normals.push(new VertexNormalsHelper(stick));
+    shovelHead.geometry.computeTangents();
+    shovelHead.geometry.computeVertexNormals();
+    normals.push(new VertexNormalsHelper(shovelHead));
     base.geometry.computeTangents();
     base.geometry.computeVertexNormals();
-    normals.push(new VertexNormalsHelper(base))
+    normals.push(new VertexNormalsHelper(base));
     for( const stand of stands ) {
         stand.geometry.computeVertexNormals();
         stand.geometry.computeTangents();
         normals.push(new VertexNormalsHelper(stand));
     }
 
-
-    group.add(base, ...stands, ...wheels, cylinder, stick);
-    return {group, normals};
+    cylinder.add(stick, shovelHead);
+    group.add(base, ...stands, ...wheels, cylinder);
+    return {group, normals, cylinder, shovelHead};
 }
 
 export default createWholeCatapult;

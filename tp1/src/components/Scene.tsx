@@ -6,7 +6,17 @@ import createPlane from "./objects/Plane/Plane";
 import createWholeCaste from "./objects/Castle/WholeCastle";
 import createWholeCatapult from "./objects/Catapult/WholeCatapult";
 import {GUI} from "dat.gui";
-import {BoxGeometry, Group, Mesh, MeshStandardMaterial, Vector3} from "three";
+import {
+    BoxGeometry,
+    Group,
+    Mesh,
+    MeshPhongMaterial,
+    MeshStandardMaterial,
+    Sphere,
+    SphereGeometry,
+    Vector3
+} from "three";
+import shovelHead from "./objects/Catapult/ShovelHead";
 
 const Scene = () => {
     const sceneRef = useRef<HTMLDivElement>(null);
@@ -90,34 +100,34 @@ const Scene = () => {
         wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
         wallGroup.castShadow = true;
 
-        const {group: catapult, normals: catapultNormals} = createWholeCatapult();
+        const {group: catapult, normals: catapultNormals, cylinder, shovelHead} = createWholeCatapult();
         const cube = createCube();
         cube.add(catapult);
         catapult.position.setX(50);
         catapult.position.setZ(50);
-        const center = new Vector3(0,0,0);
-        catapult.lookAt(new Vector3(0,0,0));
+        const center = new Vector3(0, 0, 0);
+        catapult.lookAt(new Vector3(0, 0, 0));
 
-        let width = 17,depth = 13, floors = 6;
+        let width = 17, depth = 13, floors = 6;
         let wholeCastle = createWholeCaste(floors, width, depth);
         const castleGroup = new THREE.Group();
         castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
         castleGroup.castShadow = true;
         const normals = [...wholeCastle.normals, ...catapultNormals, ...wholeWall.normals, ...planeNormals];
-        for( const normal of normals) {
+        for (const normal of normals) {
             normal.update();
             normal.visible = false;
         }
         wholeScene.scene.add(castleGroup, wallGroup, wholeScene.camera, wholeScene.directionalLight, planeGroup, catapult
-            ,...normals, wholeWall.bridge );
+            , ...normals, wholeWall.bridge);
         wholeScene.renderingFolder.add({'Mapa de normales': normalsEnabled}, "Mapa de normales").onChange((value: boolean) => {
             setNormalsEnabled(value);
-            for( const normal of normals ) {
+            for (const normal of normals) {
                 normal.visible = value;
             }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.sceneFolder.add({'Angulo Catapulta':anguloCatapulta}, 'Angulo Catapulta', 0, 360).onChange((value: number) => {
+        wholeScene.sceneFolder.add({'Angulo Catapulta': anguloCatapulta}, 'Angulo Catapulta', 0, 360).onChange((value: number) => {
             cube.rotation.y = degToRad(value);
             const rotationMatrix = new THREE.Matrix4().makeRotationFromEuler(cube.rotation);
             const catapultOffset = new THREE.Vector3(50, 0, 50);
@@ -131,7 +141,7 @@ const Scene = () => {
         parent.position.setZ(wholeWall.bridge.position.z);
         const group = new Group().add(parent, wholeWall.bridge);
         wholeScene.scene.add(group);
-        wholeScene.sceneFolder.add({'Apertura Puerta':aperturaPuerta}, 'Apertura Puerta', 0, 90).onChange((value: number) => {
+        wholeScene.sceneFolder.add({'Apertura Puerta': aperturaPuerta}, 'Apertura Puerta', 0, 90).onChange((value: number) => {
             group.rotation.x = degToRad(value);
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
@@ -167,7 +177,9 @@ const Scene = () => {
             wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
             wholeScene.scene.add(wallGroup, wholeWall.bridge);
         });
-
+        let isThrowing = false;
+        let isGoingDown = false;
+        let ball: Mesh | null;
         const handleKeyPress = (event: KeyboardEvent) => {
             const createCameraCatapult = () => {
                 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -208,25 +220,74 @@ const Scene = () => {
                 wholeScene.scene.add(wholeScene.camera);
             }
 
-            if( (event.key === 'W' || event.key === 'w') ) {
+            if ((event.key === 'W' || event.key === 'w')) {
                 wholeScene.camera.position.z += 1;
-            } else if( (event.key === 'A' || event.key === 'a')) {
+            } else if ((event.key === 'A' || event.key === 'a')) {
                 wholeScene.camera.position.x += 1;
-            } else if( (event.key === 'S' || event.key === 's')) {
+            } else if ((event.key === 'S' || event.key === 's')) {
                 wholeScene.camera.position.z -= 1;
-            } else if( (event.key === 'D' || event.key === 'd')) {
+            } else if ((event.key === 'D' || event.key === 'd')) {
                 wholeScene.camera.position.x -= 1;
-            } else if( (event.key === 'Q' || event.key === 'q')) {
+            } else if ((event.key === 'Q' || event.key === 'q')) {
                 wholeScene.camera.rotation.y -= .05;
-            } else if( (event.key === 'E' || event.key === 'e')) {
+            } else if ((event.key === 'E' || event.key === 'e')) {
                 wholeScene.camera.rotation.y += .05;
+            } else if (event.key === 'P' || event.key === 'p') {
+                isThrowing = true;
+                // cylinder.rotation.x = Math.PI/4;
+            } else if ((event.key === 'R' || event.key === 'r') && !isGoingDown && !isThrowing) {
+                const ballGeometry = new SphereGeometry(.2);
+                const ballMaterial = new MeshPhongMaterial({color: 0xa6a7ab});
+                ball = new Mesh(ballGeometry, ballMaterial);
+                ball.position.y = .2;
+                shovelHead.add(ball);
             }
         };
 
         document.addEventListener('keydown', handleKeyPress);
-
+        let isFlying = false;
+        let dir = new Vector3();
+        let ballIsGoingDown = false;
         const animate = () => {
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
+            if (isThrowing && cylinder.rotation.x < Math.PI / 4) {
+                cylinder.rotation.x += .03;
+            } else if (isThrowing && cylinder.rotation.x >= Math.PI / 4) {
+                isThrowing = false;
+                isGoingDown = true;
+                isFlying = true;
+                const worldPosition = new Vector3();
+                const positionToReset = ball && ball.getWorldPosition(worldPosition);
+                ball && dir.subVectors(ball.position, catapult.getWorldPosition(worldPosition)).normalize();
+                ball && shovelHead.remove(ball);
+                if (ball && positionToReset) {
+                    ball.position.set(shovelHead.getWorldPosition(worldPosition).x,
+                        shovelHead.getWorldPosition(worldPosition).y, shovelHead.getWorldPosition(worldPosition).z);
+                    wholeScene.scene.add(ball);
+                }
+            } else if (isGoingDown && cylinder.rotation.x > 0) {
+                cylinder.rotation.x -= .03;
+            } else if (isGoingDown && cylinder.rotation.x <= 0) {
+                isGoingDown = false;
+            }
+            if (isFlying && ball) {
+                if (ball.position.y < 0) {
+                    wholeScene.scene.remove(ball);
+                    isFlying = false;
+                } else {
+                    ball.position.x += dir.x * 0.2;
+                    ball.position.z += dir.z * 0.2;
+                    if(!ballIsGoingDown && ball.position.y < (.25**2+.1**2+.1**2)/(Math.sqrt(2)*2*.001)){
+                        ball.position.y -= dir.z * 0.2;
+                    }
+                    else if(!ballIsGoingDown && ball.position.y >= (.1**2+.1**2+.25**2)/(Math.sqrt(2)*2*.001)) {
+                        ball.position.y += dir.z * 0.2;
+                        ballIsGoingDown = true;
+                    } else if( ballIsGoingDown ) {
+                        ball.position.y += dir.z * 0.2;
+                    }
+                }
+            }
             requestAnimationFrame(animate);
         };
 
