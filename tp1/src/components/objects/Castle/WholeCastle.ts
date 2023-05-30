@@ -3,12 +3,9 @@ import {Group, Mesh} from "three";
 import createCastleTower from "./CastleTower";
 import createCastleTowerHead from "./CastleTowerHead";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
-import castleBase from "./CastleBase";
 
-const createWholeCaste = (floors: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
-    const base = createCastleBase(floors);
-    const width = 17;
-    const depth = 13;
+const createWholeCaste = (floors: number, width: number, depth: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
+    const base = createCastleBase(floors, width, depth);
 
     const towerGroup1 = new Group(), towerGroup2 = new Group(), towerGroup3 = new Group(), towerGroup4 = new Group();
     const towers = new Group();

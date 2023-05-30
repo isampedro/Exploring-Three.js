@@ -53,10 +53,8 @@ const createWindowsAtSides = (x: number, height: number, depth: number, wss: num
     return windows;
 }
 
-const createCastleBase = (floorsCount: number): { castleBase: Mesh, windows: Mesh[] } => {
+const createCastleBase = (floorsCount: number, width: number, depth: number): { castleBase: Mesh, windows: Mesh[] } => {
     const height = floorsCount*3;
-    const width = 17;
-    const depth = 13;
 
     const geometry = new THREE.BoxGeometry( width, height, depth );
     const material = new THREE.MeshPhongMaterial( {color: 0xc4c291} );

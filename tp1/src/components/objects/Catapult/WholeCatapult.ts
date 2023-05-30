@@ -5,6 +5,7 @@ import createCatapultCylinder from "./Cylinder";
 import createWheel from "./Wheels";
 import createStick from "./Stick";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
+import createShovelHead from "./ShovelHead";
 
 const createWheels = (wheelSize: number, width: number, depth: number, baseHeight: number): Group[] => {
     const wheels = [createWheel(wheelSize),createWheel(wheelSize),createWheel(wheelSize),createWheel(wheelSize)];
@@ -52,16 +53,21 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[]} =
     const wheelSize = baseHeight/4;
     const base = createCatapultBase(width, depth, height);
     const stickWidth = .1;
+    const shovelHeadWidth =  .4
 
     const stands = createStands(standHeight, width, height, depth, baseHeight);
     const cylinder = createCatapultCylinder(5*width/6, .05);
     const wheels = createWheels(wheelSize, width, depth, baseHeight);
     const stick = createStick(stickWidth, stickWidth, depth);
+    const shovelHead = createShovelHead(shovelHeadWidth, stickWidth, shovelHeadWidth);
     const normals: VertexNormalsHelper[] = [];
 
     stick.position.setY(standHeight + .05);
     stick.position.setX(+.1);
     stick.position.setZ( 0);
+    shovelHead.position.setY(standHeight + .05);
+    shovelHead.position.setX(+.1);
+    shovelHead.position.setZ( 0);
 
     base.position.setY(baseHeight);
 
