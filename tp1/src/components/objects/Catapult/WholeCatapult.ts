@@ -49,7 +49,7 @@ const createStands = (standHeight: number, width: number, height: number, depth:
 
 const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], cylinder: Mesh, shovelHead: Mesh} => {
     const group = new Group();
-    const width = 2.5, depth = 4,baseHeight = .5, height = .2, standHeight = 3;
+    const width = 2, depth = 4,baseHeight = .5, height = .2, standHeight = 3;
     const wheelSize = baseHeight/4;
     const base = createCatapultBase(width, depth, height);
     const stickWidth = .1;
