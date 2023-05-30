@@ -3,10 +3,11 @@ import * as THREE from "three";
 import {ArcballControls} from "three/examples/jsm/controls/ArcballControls";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 import createWholeWall from "./objects/Wall/WholeWall";
-import wholeWall from "./objects/Wall/WholeWall";
-import {create} from "domain";
 import createPlane from "./objects/Plane/Plane";
 import createWholeCaste from "./objects/Castle/WholeCastle";
+import createCatapultBase from "./objects/Catapult/Base";
+import createCatapultStandPart from "./objects/Catapult/Stand";
+import createWholeCatapult from "./objects/Catapult/WholeCatapult";
 
 const Scene = () => {
     const sceneRef = useRef<HTMLDivElement>(null);
@@ -33,13 +34,10 @@ const Scene = () => {
     const createDirectionalLight = () => {
         const color = 0xFFFFFF;
         const intensity = 1;
-        return new THREE.DirectionalLight(color, intensity);
-    }
+        const light = new THREE.DirectionalLight(color, intensity);
 
-    const createAmbientLight = () => {
-        const color = 0xFFFFFF;
-        const intensity = 1;
-        return new THREE.AmbientLight(color, intensity);
+        light.castShadow = true;
+        return light;
     }
 
     const createScene = () => {
@@ -49,7 +47,6 @@ const Scene = () => {
             renderer: createRenderer(),
             camera: createCamera(),
             directionalLight: createDirectionalLight(),
-            ambientLight: createAmbientLight(),
             gridHelper: new THREE.GridHelper(Size, Divisions),
         };
         return {
@@ -70,30 +67,28 @@ const Scene = () => {
         const {plane, bridge, water} = createPlane();
         const planeGroup = new THREE.Group();
         planeGroup.add(plane, bridge, water);
+        planeGroup.castShadow = true;
         wholeScene.scene.add( wholeScene.camera, wholeScene.directionalLight, planeGroup);
         const wholeWall = createWholeWall(new THREE.Vector3(0, 0, 0), 6);
         const wallGroup = new THREE.Group();
-        for(const wall of wholeWall.walls) {
-            wallGroup.add(wall);
-        }
-        for( const wallTower of wholeWall.towers ) {
-            wallGroup.add(wallTower);
-        }
+        wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
+        wallGroup.castShadow = true;
         wholeScene.scene.add(wallGroup);
+
+        const base = createWholeCatapult();
+        base.position.x = 50;
+        base.position.z = 50;
+        base.rotation.y = -3*Math.PI/4;
+        wholeScene.scene.add(base);
 
         const wholeCastle = createWholeCaste(6);
         const castleGroup = new THREE.Group();
         castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
+        castleGroup.castShadow = true;
         wholeScene.scene.add(castleGroup);
         // const normals: VertexNormalsHelper[] = [];
         // for(let i = 0; i < wholeWall.walls.length; i++) {
         //     normals.push(new VertexNormalsHelper(wholeWall.walls[i], 1));
-        // }
-        // for(let i = 0; i < wholeWall.towers.length; i++) {
-        //     normals.push(new VertexNormalsHelper(wholeWall.towers[i], 1));
-        // }
-        // for( let i = 0; i < normals.length; i++ ) {
-        //     wholeScene.scene.add(normals[i]);
         // }
         const animate = () => {
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);

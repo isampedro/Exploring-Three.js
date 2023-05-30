@@ -27,7 +27,7 @@ const createWindow = (): Mesh => {
 const createWindowsAtFront = (z: number, height: number, width: number, wss: number, wsh: number): Mesh[] => {
     const windows: Mesh[] = [];
     for( let i = wsh; i < height; i+= wsh) {
-        for( let j = wss; j < width-wss; j+= wss) {
+        for( let j = wss/2; j < width-wss/2; j+= wss) {
             const window = createWindow();
             window.position.y = i;
             window.position.x = (j-width/2);

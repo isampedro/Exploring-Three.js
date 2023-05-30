@@ -4,7 +4,7 @@ import {createMeshFromLatheStandard} from "../Meshes";
 
 const createBridge = (): Mesh => {
     const planeBridgeGeometry = new THREE.PlaneGeometry(10, 17);
-    const geometryMaterial = new THREE.MeshStandardMaterial({color: 0x00FF00, side: THREE.DoubleSide})
+    const geometryMaterial = new THREE.MeshStandardMaterial({color: 0x3c8a3f, side: THREE.DoubleSide})
     const bridge = new THREE.Mesh(planeBridgeGeometry, geometryMaterial);
     bridge.position.x = 0;
     bridge.position.z = 47;
@@ -32,14 +32,14 @@ const createPlanePart = (): Mesh => {
     to = {x: totalTerrain, y: 0};
     shape.lineTo(to.x, to.y);
 
-    return createMeshFromLatheStandard(shape, 0x00FF00);
+    return createMeshFromLatheStandard(shape, 0x3c8a3f);
 }
 
 const createWaterDisc = () => {
     const castleTerrainRadius = 40;
     const castleChannelRadius = 55;
     const geometry = new THREE.RingGeometry( castleTerrainRadius, castleChannelRadius);
-    const material = new THREE.MeshPhongMaterial( { color: 0x00F0FF, side: THREE.DoubleSide } );
+    const material = new THREE.MeshPhongMaterial( { color: 0x65aebf, side: THREE.DoubleSide } );
     const waterDisc = new THREE.Mesh( geometry, material );
     waterDisc.position.y = -1;
     waterDisc.rotation.x = Math.PI/2;
