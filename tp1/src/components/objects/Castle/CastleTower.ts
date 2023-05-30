@@ -4,7 +4,7 @@ import {createMeshFromLathe} from "../Meshes";
 import {getStep} from "../AuxiliarFunctions";
 
 const createCastleTower = (floorsCount: number): Mesh => {
-    const narrowerPartHeight = floorsCount*3;
+    const narrowerPartHeight = floorsCount*2.7;
     const narrowerPartWidth = 1;
     const widerPartHeight = 3;
     const widerPartWidth = 1.5;

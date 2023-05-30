@@ -157,16 +157,20 @@ const Scene = () => {
             }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        const parent = new THREE.Object3D();
-        parent.position.setX(wholeWall.bridge.position.x);
-        parent.position.setZ(wholeWall.bridge.position.z);
-        const group = new Group().add(parent, wholeWall.bridge);
-        wholeScene.scene.add(group);
-        wholeScene.sceneFolder.add({'Apertura Puerta': aperturaPuerta}, 'Apertura Puerta', 0, 90).onChange((value: number) => {
-            group.rotation.x = degToRad(value);
+        wholeScene.sceneFolder.add({'Posicion Catapulta': catapult.position.x}, 'Posicion Catapulta', 40, 60).onChange((value: number) => {
+            catapult.position.x = value;
+            catapult.lookAt(center);
+            for(const normal of normals ) {
+                normal.update();
+            }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.castleFolder.add({Anchura: width}, "Anchura", 10, 25).onChange((value: number) => {
+        wholeScene.scene.add(wholeWall.bridge);
+        wholeScene.sceneFolder.add({'Apertura Puerta': aperturaPuerta}, 'Apertura Puerta', 0, 90).onChange((value: number) => {
+            wholeWall.bridge.rotation.x = -degToRad(90-value);
+            wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
+        });
+        wholeScene.castleFolder.add({Ancho: width}, "Ancho", 10, 25).onChange((value: number) => {
             wholeScene.scene.remove(castleGroup);
             width = value;
             castleGroup.clear();
@@ -196,12 +200,17 @@ const Scene = () => {
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
         wholeScene.castleFolder.add({'Altura Murallas': floorsWall}, "Altura Murallas", 3, 10).onChange((value: number) => {
-            wholeScene.scene.remove(wallGroup, wholeWall.bridge);
+            wholeScene.scene.remove(wallGroup, wholeWall.bridge, ...normals);
             floorsWall = value;
             wallGroup.clear();
             wholeWall = createWholeWall(center, floorsWall);
             wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
-            wholeScene.scene.add(wallGroup, wholeWall.bridge);
+            wholeScene.scene.add(wallGroup, wholeWall.bridge, ...normals);
+            // wholeScene.scene.traverse(updateMesh);
+            // for( const normal of normals ) {
+            //     normal.update();
+            // }
+            // wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
         let isThrowing = false;
         let isGoingDown = false;
@@ -223,11 +232,9 @@ const Scene = () => {
                 camera.lookAt(center.x, center.y, center.z);
                 return camera;
             }
-            //let isCameraCitizen = false;
             if (event.key === '1') {
                 wholeScene.scene.remove(wholeScene.camera);
                 wholeScene.camera.clear();
-                //catapult.remove(wholeScene.camera);
                 wholeScene.camera = createCamera();
                 wholeScene.controls = new ArcballControls(wholeScene.camera, wholeScene.renderer.domElement, wholeScene.scene);
                 wholeScene.scene.add(wholeScene.camera);
@@ -235,14 +242,12 @@ const Scene = () => {
                 wholeScene.scene.remove(wholeScene.camera)
                 wholeScene.camera.clear();
                 wholeScene.camera = createCameraCatapult();
-                //catapult.add(wholeScene.camera);
                 wholeScene.controls = new ArcballControls(wholeScene.camera, wholeScene.renderer.domElement, wholeScene.scene);
                 wholeScene.scene.add(wholeScene.camera);
             } else if (event.key === '3') {
                 wholeScene.scene.remove(wholeScene.camera)
                 wholeScene.camera.clear();
                 wholeScene.camera = createCameraCitizen();
-                //catapult.add(wholeScene.camera);
                 wholeScene.scene.add(wholeScene.camera);
             }
 
@@ -277,7 +282,6 @@ const Scene = () => {
         document.addEventListener('keydown', handleKeyPress);
         let isFlying = false;
         let dir = new Vector3();
-        let ballIsGoingDown = false;
         let t = 0;
         const animate = () => {
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);

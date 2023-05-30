@@ -1,7 +1,8 @@
-import {BoxGeometry, Material, Mesh, MeshPhongMaterial, Scene, Vector3} from "three";
+import {BoxGeometry, ExtrudeGeometry, Material, Mesh, MeshPhongMaterial, Scene, Shape, Vector3} from "three";
 import createWallTower from "./WallTower";
 import createWall from "./CastleWall";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
+import {createFromExtrude} from "../Meshes";
 
 
 const positionWallTowersInScene = (center: Vector3, towers: Mesh[]) => {
@@ -54,11 +55,13 @@ const createWholeWall = (center: Vector3, floors: number): {walls: Mesh[], tower
         createWallTower(floors), createWallTower(floors), createWallTower(floors)];
     const walls = [createWall(floors, wallLength), createWall(floors, wallLength), createWall(floors, wallLength/2 - 4*.7),
         createWall(floors, wallLength), createWall(floors, wallLength), createWall(floors, wallLength + 4*0.7), createWall(floors, wallLength/2 - 4*.7)];
-    const planeBoxGeometry = new BoxGeometry(10, floors*1.3, 1);
-    const planeBoxMaterial = new MeshPhongMaterial({color: 0x201313});
-    const planeBox = new Mesh(planeBoxGeometry, planeBoxMaterial);
-    planeBox.position.setZ(center.z + 30*0.7 + 1);
-    planeBox.position.setY(floors*1.3/2);
+    const shape = new Shape();
+    shape.moveTo(0, 0);
+    shape.lineTo(10, 0);
+    const planeBox = createFromExtrude(shape, 0x201313,floors);
+    planeBox.position.setZ(center.z + 30*.7);
+    planeBox.position.setX(center.y - 5)
+    planeBox.rotation.x = -Math.PI/2;
     positionWallTowersInScene(center, towers);
     positionWallsInScene(center, walls);
 

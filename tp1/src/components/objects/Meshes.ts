@@ -37,4 +37,19 @@ const createFromExtrude = (shape: THREE.Shape, color: number, length: number ) =
     return new THREE.Mesh( geometry, geometryMaterial ) ;
 }
 
-export { createMeshFromLathe, createFromExtrude, createMeshFromLatheStandard }
+const createFromExtrudeBevel = (shape: THREE.Shape, color: number, length: number ) => {
+    const extrudeSettings = {
+        steps: 20,
+        depth: length,
+        bevelThickness: 5,
+        bevelEnabled: false
+    };
+
+    const geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+    const geometryMaterial = new THREE.MeshPhongMaterial( { color } );
+    geometryMaterial.emissive = new Color(color);
+    geometryMaterial.emissiveIntensity = 0.05;
+    return new THREE.Mesh( geometry, geometryMaterial ) ;
+}
+
+export { createMeshFromLathe, createFromExtrude, createMeshFromLatheStandard, createFromExtrudeBevel }

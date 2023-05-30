@@ -24,10 +24,10 @@ const createWholeCaste = (floors: number, width: number, depth: number): { base:
     }
     vertexNormalsHelpers.push(new VertexNormalsHelper(base.castleBase));
 
-    towerHeads[0].position.setY(floors*3 + 4 + .5);
-    towerHeads[1].position.setY(floors*3 + 4 + .5);
-    towerHeads[2].position.setY(floors*3 + 4 + .5);
-    towerHeads[3].position.setY(floors*3 + 4 + .5);
+    towerHeads[0].position.setY(floors*2.7 + 4 + .5);
+    towerHeads[1].position.setY(floors*2.7 + 4 + .5);
+    towerHeads[2].position.setY(floors*2.7 + 4 + .5);
+    towerHeads[3].position.setY(floors*2.7 + 4 + .5);
 
     towerGroup1.add(towerObjects[0], towerHeads[0]);
     towerGroup2.add(towerObjects[1], towerHeads[1]);
