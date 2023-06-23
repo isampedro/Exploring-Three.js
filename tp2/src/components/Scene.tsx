@@ -1,22 +1,22 @@
 import React, {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
+import {
+    BoxGeometry, DirectionalLightHelper,
+    Group,
+    Mesh,
+    MeshPhongMaterial,
+    MeshStandardMaterial,
+    Object3D,
+    PointLight,
+    SphereGeometry, TextureLoader,
+    Vector3
+} from "three";
 import {ArcballControls} from "three/examples/jsm/controls/ArcballControls";
 import createWholeWall from "./objects/Wall/WholeWall";
 import createPlane from "./objects/Plane/Plane";
 import createWholeCaste from "./objects/Castle/WholeCastle";
 import createWholeCatapult from "./objects/Catapult/WholeCatapult";
 import {GUI} from "dat.gui";
-import {
-    BoxGeometry,
-    Group,
-    Mesh,
-    MeshPhongMaterial,
-    MeshStandardMaterial, Object3D,
-    Sphere,
-    SphereGeometry,
-    Vector3
-} from "three";
-import shovelHead from "./objects/Catapult/ShovelHead";
 
 const Scene = () => {
     const sceneRef = useRef<HTMLDivElement>(null);
@@ -43,11 +43,16 @@ const Scene = () => {
         return camera;
     };
 
+    const createHemishphereLight = () => {
+        const intensity = 1;
+        return new THREE.AmbientLight(0x87CEFA, intensity);
+    }
+
     const createDirectionalLight = () => {
-        const color = 0xFFFFFF;
+        const color = 0x956965;
         const intensity = 1;
         const light = new THREE.DirectionalLight(color, intensity);
-
+        light.position.set(150, 100, 150);
         light.castShadow = true;
         return light;
     }
@@ -59,15 +64,18 @@ const Scene = () => {
             renderer: createRenderer(),
             camera: createCamera(),
             directionalLight: createDirectionalLight(),
+            ambientLight: createHemishphereLight(),
             gridHelper: new THREE.GridHelper(Size, Divisions),
             gui: new GUI(),
         };
+        scene.scene.background = new THREE.Color(0x87ceeb) ;
         return {
             ...scene, ...{
                 renderingFolder: scene.gui.addFolder("Rendering"),
                 sceneFolder: scene.gui.addFolder("Escena"),
                 castleFolder: scene.gui.addFolder('Castillo'),
                 controls: new ArcballControls(scene.camera, scene.renderer.domElement, scene.scene),
+                directionalLightHelper: new DirectionalLightHelper(scene.directionalLight, 5),
                 axesHelper: new THREE.AxesHelper(1),
             }
         };
@@ -89,13 +97,15 @@ const Scene = () => {
         wholeScene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         sceneRef.current?.appendChild(wholeScene.renderer.domElement);
         wholeScene.gridHelper.visible = true;
+        let wallPolygonQ = 6
 
         const {plane, bridge, water, normals: planeNormals} = createPlane();
         const planeGroup = new THREE.Group();
+
         planeGroup.add(plane, bridge, water);
         planeGroup.castShadow = true;
         let floorsWall = 6;
-        let wholeWall = createWholeWall(new THREE.Vector3(0, 0, 0), floorsWall);
+        let wholeWall = createWholeWall(new THREE.Vector3(0, 0, 0), floorsWall, wallPolygonQ);
         const wallGroup = new THREE.Group();
         wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
         wallGroup.castShadow = true;
@@ -113,7 +123,6 @@ const Scene = () => {
             }
             visited.add(item);
             if (item instanceof Mesh) {
-                item.geometry.computeTangents();
                 item.geometry.computeVertexNormals();
                 item.geometry.computeBoundingSphere();
                 item.geometry.computeBoundingBox();
@@ -135,7 +144,7 @@ const Scene = () => {
             normals[i].update();
             normals[i].visible = false;
         }
-        wholeScene.scene.add(castleGroup, wallGroup, wholeScene.camera, wholeScene.directionalLight, planeGroup, catapult
+        wholeScene.scene.add(castleGroup, wallGroup, wholeScene.camera, wholeScene.directionalLight /*, wholeScene.directionalLightHelper*/, wholeScene.ambientLight, planeGroup, catapult
             , ...normals, wholeWall.bridge);
         wholeScene.renderingFolder.add({'Mapa de normales': normalsEnabled}, "Mapa de normales").onChange((value: boolean) => {
             setNormalsEnabled(value);
@@ -157,8 +166,11 @@ const Scene = () => {
             }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.sceneFolder.add({'Posicion Catapulta': catapult.position.x}, 'Posicion Catapulta', 40, 60).onChange((value: number) => {
-            catapult.position.x = value;
+        wholeScene.sceneFolder.add({'Posicion Cata': 100}, 'Posicion Cata', 90, 160).onChange((value: number) => {
+            const rotationMatrix = new THREE.Matrix4().makeRotationFromEuler(cube.rotation);
+            const catapultOffset = new THREE.Vector3(value/2, 0, value/2);
+            const catapultPosition = catapultOffset.applyMatrix4(rotationMatrix);
+            catapult.position.copy(catapultPosition);
             catapult.lookAt(center);
             for(const normal of normals ) {
                 normal.update();
@@ -203,14 +215,20 @@ const Scene = () => {
             wholeScene.scene.remove(wallGroup, wholeWall.bridge, ...normals);
             floorsWall = value;
             wallGroup.clear();
-            wholeWall = createWholeWall(center, floorsWall);
+            wholeWall = createWholeWall(center, floorsWall, wallPolygonQ);
             wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
             wholeScene.scene.add(wallGroup, wholeWall.bridge, ...normals);
-            // wholeScene.scene.traverse(updateMesh);
-            // for( const normal of normals ) {
-            //     normal.update();
-            // }
-            // wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
+        });
+        wholeScene.castleFolder.add({'Q Paredes': wallPolygonQ}, "Q Paredes", 4, 8).onChange((value: number) => {
+            wholeScene.scene.remove(wallGroup, wholeWall.bridge, ...normals);
+            wallPolygonQ = Math.floor(value);
+            wallGroup.clear();
+            wholeWall = createWholeWall(center, floorsWall, wallPolygonQ);
+            wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
+            if( wallPolygonQ % 2 == 0) {
+                wallGroup.rotation.y = 5*Math.PI/6;
+            }
+            wholeScene.scene.add(wallGroup, wholeWall.bridge, ...normals);
         });
         let isThrowing = false;
         let isGoingDown = false;
@@ -272,9 +290,12 @@ const Scene = () => {
                 isFlying = false;
                 if( ball ) wholeScene.scene.remove(ball);
                 const ballGeometry = new SphereGeometry(.2);
+                const ballLight = new PointLight(0xe25822)
+                ballLight.position.set(0, 0, 0);
                 const ballMaterial = new MeshPhongMaterial({color: 0xa6a7ab});
                 ball = new Mesh(ballGeometry, ballMaterial);
                 ball.position.y = .2;
+                ball.add(ballLight);
                 shovelHead.add(ball);
             }
         };

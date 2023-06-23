@@ -1,16 +1,21 @@
 import createCastleBase from "./CastleBase";
-import {Group, Mesh} from "three";
+import {Group, Mesh, TextureLoader} from "three";
 import createCastleTower from "./CastleTower";
 import createCastleTowerHead from "./CastleTowerHead";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 
 const createWholeCaste = (floors: number, width: number, depth: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
-    const base = createCastleBase(floors, width, depth);
+    const textureLoader = new TextureLoader();
+    const brickTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png');
+    const base = createCastleBase(floors, width, depth, brickTexture);
 
     const towerGroup1 = new Group(), towerGroup2 = new Group(), towerGroup3 = new Group(), towerGroup4 = new Group();
     const towers = new Group();
     const towerHeads = [createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead()]
-    const towerObjects = [createCastleTower(floors), createCastleTower(floors), createCastleTower(floors), createCastleTower(floors)]
+    const towerObjects = []
+    for ( let i = 0; i < 4; i++) {
+        towerObjects.push(createCastleTower(floors));
+    }
 
     const vertexNormalsHelpers: VertexNormalsHelper[] = [];
     for( const tower of towerObjects ) {
@@ -49,14 +54,12 @@ const createWholeCaste = (floors: number, width: number, depth: number): { base:
             tower.traverse(object => {
                 if( object instanceof Mesh ) {
                     object.geometry.computeVertexNormals();
-                    object.geometry.computeTangents();
                     object.geometry.computeBoundingBox();
                     object.geometry.computeBoundingSphere();
                 }
             })
         } else if( tower instanceof Mesh ) {
             tower.geometry.computeVertexNormals();
-            tower.geometry.computeTangents();
         }
     });
 

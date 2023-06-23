@@ -89,21 +89,16 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], c
     cylinder.position.setY(standHeight);
     cylinder.position.setZ( depth/4);
 
-    cylinder.geometry.computeTangents();
     cylinder.geometry.computeVertexNormals();
     normals.push(new VertexNormalsHelper(cylinder));
-    stick.geometry.computeTangents();
     stick.geometry.computeVertexNormals();
     normals.push(new VertexNormalsHelper(stick));
-    shovelHead.geometry.computeTangents();
     shovelHead.geometry.computeVertexNormals();
     normals.push(new VertexNormalsHelper(shovelHead));
-    base.geometry.computeTangents();
     base.geometry.computeVertexNormals();
     normals.push(new VertexNormalsHelper(base));
     for( const stand of stands ) {
         stand.geometry.computeVertexNormals();
-        stand.geometry.computeTangents();
         normals.push(new VertexNormalsHelper(stand));
     }
 
