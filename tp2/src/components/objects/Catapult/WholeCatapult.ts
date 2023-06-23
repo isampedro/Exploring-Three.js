@@ -1,0 +1,119 @@
+import {BoxGeometry, Color, Group, Mesh, MeshPhongMaterial} from "three";
+import createCatapultBase from "./Base";
+import createCatapultStandPart from "./Stand";
+import createCatapultCylinder from "./Cylinder";
+import createWheel from "./Wheels";
+import createStick from "./Stick";
+import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
+import createShovelHead from "./ShovelHead";
+
+const createWheels = (wheelSize: number, width: number, depth: number, baseHeight: number): Group[] => {
+    const wheels = [createWheel(wheelSize),createWheel(wheelSize),createWheel(wheelSize),createWheel(wheelSize)];
+
+    wheels[0].position.setX(-width/2 - wheelSize/2);
+    wheels[0].position.setZ(depth/4);
+    wheels[0].position.setY(baseHeight);
+    wheels[0].rotation.set(0,0,Math.PI/2);
+
+    wheels[1].position.setX(-width/2 - wheelSize/2);
+    wheels[1].position.setZ(-depth/4);
+    wheels[1].position.setY(baseHeight);
+    wheels[1].rotation.set(0,0,Math.PI/2);
+
+    wheels[2].position.setX(width/2 + wheelSize/2);
+    wheels[2].position.setZ( depth/4);
+    wheels[2].position.setY(baseHeight);
+    wheels[2].rotation.set(0,0,-Math.PI/2);
+
+    wheels[3].position.setX(width/2 + wheelSize/2);
+    wheels[3].position.setZ( -depth/4);
+    wheels[3].position.setY(baseHeight);
+    wheels[3].rotation.set(0,0,-Math.PI/2);
+
+    return wheels;
+}
+
+const createStands = (standHeight: number, width: number, height: number, depth: number, baseHeight: number): Mesh[] => {
+    const stands = [createCatapultStandPart(standHeight),createCatapultStandPart(standHeight)];
+    stands[0].position.setX(-3*width/8);
+    stands[0].position.setY(baseHeight + height);
+    stands[0].position.setZ( depth/4);
+    stands[0].rotation.set(0,Math.PI/2,0);
+
+    stands[1].position.setX(3*width/8);
+    stands[1].position.setY(baseHeight + height);
+    stands[1].position.setZ( depth/4);
+    stands[1].rotation.set(0,Math.PI/2,0);
+    return stands;
+}
+
+const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], cylinder: Mesh, shovelHead: Mesh} => {
+    const group = new Group();
+    const width = 2, depth = 4,baseHeight = .5, height = .2, standHeight = 3;
+    const wheelSize = baseHeight/4;
+    const base = createCatapultBase(width, depth, height);
+    const stickWidth = .1;
+    const shovelHeadWidth =  .4
+
+    const stands = createStands(standHeight, width, height, depth, baseHeight);
+    const cylinder = createCatapultCylinder(5*width/6, .05);
+    const wheels = createWheels(wheelSize, width, depth, baseHeight);
+    const stick = createStick(stickWidth, stickWidth, depth);
+    const shovelHead = createShovelHead(shovelHeadWidth, stickWidth, shovelHeadWidth);
+    const counterweightDim = .5;
+    const counterweightGeometry = new BoxGeometry(counterweightDim, counterweightDim, counterweightDim);
+    const counterweightMaterial = new MeshPhongMaterial({color: 0xc4c291});
+    counterweightMaterial.emissive = new Color(0xc4c291);
+    counterweightMaterial.emissiveIntensity = 0.05
+    const counterweight = new Mesh(counterweightGeometry, counterweightMaterial);
+
+    const standsCounterWeightGeometry = new BoxGeometry(counterweightDim/4, counterweightDim/2, counterweightDim/8);
+    const standsCounterWeightMaterial = new MeshPhongMaterial({color: 0x7b5f44});
+    standsCounterWeightMaterial.emissive = new Color(0x7b5f44);
+    standsCounterWeightMaterial.emissiveIntensity = 0.05
+    const standsCounterWeight = new Mesh(standsCounterWeightGeometry,standsCounterWeightMaterial)
+    const normals: VertexNormalsHelper[] = [];
+
+    stick.position.setY(.02);
+    stick.position.setX(+.05);
+    stick.position.setZ(-1);
+    shovelHead.position.setY(.02);
+    shovelHead.position.setX(+.05);
+    shovelHead.position.setZ(-3);
+    shovelHead.rotation.z = -Math.PI/2
+
+    base.position.setY(baseHeight);
+
+    cylinder.rotation.z = Math.PI/2;
+    cylinder.position.setX(+.1);
+    cylinder.position.setY(standHeight);
+    cylinder.position.setZ( depth/4);
+
+    cylinder.geometry.computeTangents();
+    cylinder.geometry.computeVertexNormals();
+    normals.push(new VertexNormalsHelper(cylinder));
+    stick.geometry.computeTangents();
+    stick.geometry.computeVertexNormals();
+    normals.push(new VertexNormalsHelper(stick));
+    shovelHead.geometry.computeTangents();
+    shovelHead.geometry.computeVertexNormals();
+    normals.push(new VertexNormalsHelper(shovelHead));
+    base.geometry.computeTangents();
+    base.geometry.computeVertexNormals();
+    normals.push(new VertexNormalsHelper(base));
+    for( const stand of stands ) {
+        stand.geometry.computeVertexNormals();
+        stand.geometry.computeTangents();
+        normals.push(new VertexNormalsHelper(stand));
+    }
+
+    cylinder.add(stick, shovelHead, counterweight, standsCounterWeight);
+    counterweight.position.z += 1;
+    counterweight.position.x -= .3;
+    standsCounterWeight.position.z +=1;
+    standsCounterWeight.position.y +=.02;
+    group.add(base, ...stands, ...wheels, cylinder);
+    return {group, normals, cylinder, shovelHead};
+}
+
+export default createWholeCatapult;
