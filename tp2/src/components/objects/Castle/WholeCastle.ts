@@ -1,20 +1,22 @@
 import createCastleBase from "./CastleBase";
-import {Group, Mesh, TextureLoader} from "three";
+import {Group, Mesh, Texture, TextureLoader} from "three";
 import createCastleTower from "./CastleTower";
 import createCastleTowerHead from "./CastleTowerHead";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
+import * as THREE from "three";
 
 const createWholeCaste = (floors: number, width: number, depth: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
     const textureLoader = new TextureLoader();
     const brickTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png');
-    const base = createCastleBase(floors, width, depth, brickTexture);
+
+    const base = createCastleBase(floors, width, depth, new Texture().copy(brickTexture));
 
     const towerGroup1 = new Group(), towerGroup2 = new Group(), towerGroup3 = new Group(), towerGroup4 = new Group();
     const towers = new Group();
     const towerHeads = [createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead()]
     const towerObjects = []
     for ( let i = 0; i < 4; i++) {
-        towerObjects.push(createCastleTower(floors));
+        towerObjects.push(createCastleTower(floors, new Texture().copy(brickTexture)));
     }
 
     const vertexNormalsHelpers: VertexNormalsHelper[] = [];

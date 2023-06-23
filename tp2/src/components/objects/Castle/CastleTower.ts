@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import {Mesh} from "three";
+import {Mesh, Texture} from "three";
 import {createMeshFromLathe} from "../Meshes";
 import {getStep} from "../AuxiliarFunctions";
 
-const createCastleTower = (floorsCount: number): Mesh => {
+const createCastleTower = (floorsCount: number, towerTexture: Texture): Mesh => {
     const narrowerPartHeight = floorsCount*2.7;
     const narrowerPartWidth = 1;
     const widerPartHeight = 3;
@@ -29,7 +29,11 @@ const createCastleTower = (floorsCount: number): Mesh => {
     to = {x: 0, y: from.y};
     step = getStep(from, to);
     shape.bezierCurveTo(from.x, from.y, from.x + step.x, from.y + step.y, to.x, to.y);
-    return createMeshFromLathe(shape, 0xc4c291);
+    towerTexture.wrapT = THREE.RepeatWrapping;
+    towerTexture.wrapS = THREE.RepeatWrapping;
+    towerTexture.repeat.set(30,50);
+    towerTexture.rotation = 3*Math.PI/4;
+    return createMeshFromLathe(shape, 0xc4c291, towerTexture);
 }
 
 export default createCastleTower;

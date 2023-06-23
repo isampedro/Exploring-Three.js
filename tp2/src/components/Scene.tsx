@@ -52,7 +52,7 @@ const Scene = () => {
         const color = 0x956965;
         const intensity = 1;
         const light = new THREE.DirectionalLight(color, intensity);
-        light.position.set(150, 100, 150);
+        light.position.set(-150, 50, -150);
         light.castShadow = true;
         return light;
     }
@@ -96,6 +96,7 @@ const Scene = () => {
         wholeScene.renderer.shadowMap.enabled = true;
         wholeScene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         sceneRef.current?.appendChild(wholeScene.renderer.domElement);
+        wholeScene.controls.setGizmosVisible(false);
         wholeScene.gridHelper.visible = true;
         let wallPolygonQ = 6
 

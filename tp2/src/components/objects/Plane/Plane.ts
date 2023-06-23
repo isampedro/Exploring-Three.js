@@ -1,7 +1,8 @@
 import * as THREE from "three";
-import {Color, Mesh, Texture, TextureLoader} from "three";
+import {Color, Mesh, Texture, TextureLoader, Vector3} from "three";
 import {createMeshFromLatheStandard} from "../Meshes";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
+import {Water} from "three/examples/jsm/objects/Water";
 
 const createBridge = (planeColor: number, grassTexture: Texture, grassNormalMap: Texture): Mesh => {
     const planeBridgeGeometry = new THREE.PlaneGeometry(10, 17);
@@ -48,21 +49,29 @@ const createWaterDisc = () => {
     const castleTerrainRadius = 40;
     const castleChannelRadius = 55;
     const geometry = new THREE.RingGeometry(castleTerrainRadius, castleChannelRadius);
-    const material = new THREE.MeshPhongMaterial({color: 0x65aebf, side: THREE.DoubleSide});
-    const waterDisc = new THREE.Mesh(geometry, material);
-    waterDisc.position.setY(-1);
-    waterDisc.rotation.set(Math.PI / 2, 0, 0);
-    return waterDisc;
+    return geometry;
 };
 
-const createPlane = (): { plane: Mesh, bridge: Mesh, water: Mesh, normals: VertexNormalsHelper[] } => {
+const createPlane = (): { plane: Mesh, bridge: Mesh, water: Mesh, normals: VertexNormalsHelper[]} => {
     const planeColor = 0x3c8a3f;
     const textureLoader = new TextureLoader();
     const grassTexture = textureLoader.load("https://cdn.polyhaven.com/asset_img/primary/leafy_grass.png");
     const grassNormalMap = textureLoader.load("https://cdn.polyhaven.com/asset_img/map_previews/leafy_grass/leafy_grass_nor_gl_1k.jpg");
     const plane = createPlanePart(planeColor, grassTexture, grassNormalMap);
     const bridge = createBridge(planeColor, grassTexture, grassNormalMap);
-    const water = createWaterDisc();
+    const waterGeom = createWaterDisc();
+    const water = new Water(waterGeom, {
+        textureWidth: 512,
+        textureHeight: 512,
+        waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        } ),
+        waterColor: 0x001e0f,
+        distortionScale: 1,
+        fog: false
+    });
+    water.position.setY(-0.75);
+    water.rotation.set(-Math.PI / 2, 0, 0);
     const normals = [new VertexNormalsHelper(bridge), new VertexNormalsHelper(water), new VertexNormalsHelper(plane)];
 
     return {plane, bridge, water, normals};
