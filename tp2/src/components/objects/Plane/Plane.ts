@@ -63,7 +63,7 @@ const createPlane = (): { plane: Mesh, bridge: Mesh, water: Mesh, normals: Verte
     const water = new Water(waterGeom, {
         textureWidth: 512,
         textureHeight: 512,
-        waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+        waterNormals: new THREE.TextureLoader().load( 'https://webglstudio.org/fileserver/files/msbutton/projects/sheenyfile/textures/waternormals.jpg.png', function ( texture ) {
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         } ),
         waterColor: 0x001e0f,

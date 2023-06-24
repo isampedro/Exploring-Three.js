@@ -1,4 +1,4 @@
-import {BoxGeometry, Color, Group, Mesh, MeshPhongMaterial} from "three";
+import {BoxGeometry, Color, Group, Mesh, MeshPhongMaterial, TextureLoader} from "three";
 import createCatapultBase from "./Base";
 import createCatapultStandPart from "./Stand";
 import createCatapultCylinder from "./Cylinder";
@@ -36,22 +36,24 @@ const createWheels = (wheelSize: number, width: number, depth: number, baseHeigh
 const createStands = (standHeight: number, width: number, height: number, depth: number, baseHeight: number): Mesh[] => {
     const stands = [createCatapultStandPart(standHeight),createCatapultStandPart(standHeight)];
     stands[0].position.setX(-3*width/8);
-    stands[0].position.setY(baseHeight + height);
+    stands[0].position.setY(baseHeight);
     stands[0].position.setZ( depth/4);
     stands[0].rotation.set(0,Math.PI/2,0);
 
     stands[1].position.setX(3*width/8);
-    stands[1].position.setY(baseHeight + height);
+    stands[1].position.setY(baseHeight);
     stands[1].position.setZ( depth/4);
     stands[1].rotation.set(0,Math.PI/2,0);
     return stands;
 }
 
 const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], cylinder: Mesh, shovelHead: Mesh} => {
+    const textureLoader = new TextureLoader();
+    const woodenTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/primary/wood_planks_dirt.png?height=780');
     const group = new Group();
     const width = 2, depth = 4,baseHeight = .5, height = .2, standHeight = 3;
     const wheelSize = baseHeight/4;
-    const base = createCatapultBase(width, depth, height);
+    const base = createCatapultBase(width, depth, height, woodenTexture);
     const stickWidth = .1;
     const shovelHeadWidth =  .4
 

@@ -23,9 +23,10 @@ const positionWallsInScene = (center: Vector3, walls: Mesh[], initialPosition: {
     }
 };
 
-const createWholeWall = (center: Vector3, floors: number, totalTowers: number): { walls: Mesh[], towers: Mesh[], bridge: Mesh, normals: VertexNormalsHelper[] } => {
+const createWholeWall = (center: Vector3, floors: number, totalTowers: number): { walls: Mesh[], towers: Mesh[], bridge: Mesh | undefined, normals: VertexNormalsHelper[] } => {
     const textureLoader = new TextureLoader();
     const brickTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png');
+    const brickNormals = textureLoader.load('https://cdn.polyhaven.com/asset_img/map_previews/rock_wall_08/rock_wall_08_nor_gl_1k.jpg');
     const towers: Mesh[] = [], walls: Mesh[] = [];
     const theta = 2 * Math.PI / totalTowers;
     const initialPosition = {x: 0, z: -30};
@@ -37,8 +38,8 @@ const createWholeWall = (center: Vector3, floors: number, totalTowers: number): 
 
 
     for (let i = 0; i < totalTowers; i++) {
-        towers.push(createWallTower(floors, new Texture().copy(brickTexture)));
-        walls.push(createWall(floors, wallLength, new Texture().copy(brickTexture)));
+        towers.push(createWallTower(floors, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
+        walls.push(createWall(floors, wallLength, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
     }
 
     const shape = new Shape();
@@ -48,15 +49,10 @@ const createWholeWall = (center: Vector3, floors: number, totalTowers: number): 
     shape.lineTo(0, .2);
     shape.lineTo(0, 0);
 
-    const planeBox = createFromExtrude(shape, 0x201313, floors * 1.3);
-    planeBox.position.setZ(center.z + 30 * .7 + 1.8);
-    planeBox.position.setX(center.y - 5);
-    planeBox.rotation.x = -Math.PI / 2;
     positionWallTowersInScene(center, towers, initialPosition);
     positionWallsInScene(center, walls, initialPosition);
 
     const normals: VertexNormalsHelper[] = [];
-    normals.push(new VertexNormalsHelper(planeBox));
     for (const tower of towers) {
         normals.push(new VertexNormalsHelper(tower));
     }
@@ -64,7 +60,7 @@ const createWholeWall = (center: Vector3, floors: number, totalTowers: number): 
         normals.push(new VertexNormalsHelper(wall));
     }
 
-    return {walls, towers, bridge: planeBox, normals};
+    return {walls, towers, bridge: undefined, normals};
 };
 
 export default createWholeWall;

@@ -1,14 +1,14 @@
 import React, {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
 import {
-    BoxGeometry, DirectionalLightHelper,
+    BoxGeometry, Color, DirectionalLightHelper,
     Group,
     Mesh,
     MeshPhongMaterial,
     MeshStandardMaterial,
     Object3D,
     PointLight,
-    SphereGeometry, TextureLoader,
+    SphereGeometry, Texture, TextureLoader,
     Vector3
 } from "three";
 import {ArcballControls} from "three/examples/jsm/controls/ArcballControls";
@@ -43,13 +43,13 @@ const Scene = () => {
         return camera;
     };
 
-    const createHemishphereLight = () => {
+    const createAmbientLight = () => {
         const intensity = 1;
-        return new THREE.AmbientLight(0x87CEFA, intensity);
+        return new THREE.AmbientLight(0x5781f4, intensity);
     }
 
     const createDirectionalLight = () => {
-        const color = 0x956965;
+        const color = 0xee5d6c;
         const intensity = 1;
         const light = new THREE.DirectionalLight(color, intensity);
         light.position.set(-150, 50, -150);
@@ -64,11 +64,11 @@ const Scene = () => {
             renderer: createRenderer(),
             camera: createCamera(),
             directionalLight: createDirectionalLight(),
-            ambientLight: createHemishphereLight(),
+            ambientLight: createAmbientLight(),
             gridHelper: new THREE.GridHelper(Size, Divisions),
             gui: new GUI(),
         };
-        scene.scene.background = new THREE.Color(0x87ceeb) ;
+        scene.scene.background = new THREE.Color(0x5781f4) ;
         return {
             ...scene, ...{
                 renderingFolder: scene.gui.addFolder("Rendering"),
@@ -133,7 +133,6 @@ const Scene = () => {
         };
 
         catapult.traverse(item => updateMesh(item));
-        wholeWall.bridge.geometry.computeVertexNormals();
 
         let width = 17, depth = 13, floors = 6;
         let wholeCastle = createWholeCaste(floors, width, depth);
@@ -146,7 +145,7 @@ const Scene = () => {
             normals[i].visible = false;
         }
         wholeScene.scene.add(castleGroup, wallGroup, wholeScene.camera, wholeScene.directionalLight /*, wholeScene.directionalLightHelper*/, wholeScene.ambientLight, planeGroup, catapult
-            , ...normals, wholeWall.bridge);
+            , ...normals);
         wholeScene.renderingFolder.add({'Mapa de normales': normalsEnabled}, "Mapa de normales").onChange((value: boolean) => {
             setNormalsEnabled(value);
             for (const normal of normals) {
@@ -178,9 +177,7 @@ const Scene = () => {
             }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.scene.add(wholeWall.bridge);
         wholeScene.sceneFolder.add({'Apertura Puerta': aperturaPuerta}, 'Apertura Puerta', 0, 90).onChange((value: number) => {
-            wholeWall.bridge.rotation.x = -degToRad(90-value);
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
         wholeScene.castleFolder.add({Ancho: width}, "Ancho", 10, 25).onChange((value: number) => {
@@ -213,15 +210,15 @@ const Scene = () => {
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
         wholeScene.castleFolder.add({'Altura Murallas': floorsWall}, "Altura Murallas", 3, 10).onChange((value: number) => {
-            wholeScene.scene.remove(wallGroup, wholeWall.bridge, ...normals);
+            wholeScene.scene.remove(wallGroup, ...normals);
             floorsWall = value;
             wallGroup.clear();
             wholeWall = createWholeWall(center, floorsWall, wallPolygonQ);
             wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
-            wholeScene.scene.add(wallGroup, wholeWall.bridge, ...normals);
+            wholeScene.scene.add(wallGroup, ...normals);
         });
         wholeScene.castleFolder.add({'Q Paredes': wallPolygonQ}, "Q Paredes", 4, 8).onChange((value: number) => {
-            wholeScene.scene.remove(wallGroup, wholeWall.bridge, ...normals);
+            wholeScene.scene.remove(wallGroup, ...normals);
             wallPolygonQ = Math.floor(value);
             wallGroup.clear();
             wholeWall = createWholeWall(center, floorsWall, wallPolygonQ);
@@ -229,7 +226,7 @@ const Scene = () => {
             if( wallPolygonQ % 2 == 0) {
                 wallGroup.rotation.y = 5*Math.PI/6;
             }
-            wholeScene.scene.add(wallGroup, wholeWall.bridge, ...normals);
+            wholeScene.scene.add(wallGroup, ...normals);
         });
         let isThrowing = false;
         let isGoingDown = false;
@@ -291,9 +288,13 @@ const Scene = () => {
                 isFlying = false;
                 if( ball ) wholeScene.scene.remove(ball);
                 const ballGeometry = new SphereGeometry(.2);
-                const ballLight = new PointLight(0xe25822)
+                const ballLight = new PointLight(0xf07f13);
+                ballLight.intensity = .6;
                 ballLight.position.set(0, 0, 0);
-                const ballMaterial = new MeshPhongMaterial({color: 0xa6a7ab});
+                const ballTexture = new TextureLoader().load('https://cdn.polyhaven.com/asset_img/primary/rock_06.png');
+                const ballMaterial = new MeshPhongMaterial({color: 0xa43518, map: ballTexture});
+                ballMaterial.emissive = new Color(0xa43518);
+                ballMaterial.emissiveIntensity = 0.02;
                 ball = new Mesh(ballGeometry, ballMaterial);
                 ball.position.y = .2;
                 ball.add(ballLight);
