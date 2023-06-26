@@ -55,9 +55,11 @@ const createWholeWall = (center: Vector3, floors: number, totalTowers: number): 
     const normals: VertexNormalsHelper[] = [];
     for (const tower of towers) {
         normals.push(new VertexNormalsHelper(tower));
+        tower.geometry.computeBoundingBox();
     }
     for (const wall of walls) {
         normals.push(new VertexNormalsHelper(wall));
+        wall.geometry.computeBoundingBox();
     }
 
     return {walls, towers, bridge: undefined, normals};

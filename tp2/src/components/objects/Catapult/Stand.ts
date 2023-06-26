@@ -1,7 +1,8 @@
-import { Mesh, Shape} from "three";
+import {Mesh, Shape, Texture} from "three";
 import {createFromExtrude} from "../Meshes";
+import * as THREE from "three";
 
-const createCatapultStandPart = (standHeight: number): Mesh => {
+const createCatapultStandPart = (standHeight: number, texture: Texture): Mesh => {
     const baseWidth = 1;
     const topWidth = .5;
     const shape = new Shape();
@@ -16,8 +17,11 @@ const createCatapultStandPart = (standHeight: number): Mesh => {
     to = {x: baseWidth / 2, y: 0};
     shape.lineTo(to.x, to.y);
     shape.lineTo(from.x, from.y);
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.repeat.set(2, 2);
 
-    return createFromExtrude(shape, 0x7b5f44, .2);
+    return createFromExtrude(shape, 0x8A7F80, .2, texture);
 }
 
 export default createCatapultStandPart;

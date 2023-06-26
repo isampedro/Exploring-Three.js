@@ -3,9 +3,8 @@ import {Group, Mesh, Texture, TextureLoader} from "three";
 import createCastleTower from "./CastleTower";
 import createCastleTowerHead from "./CastleTowerHead";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
-import * as THREE from "three";
 
-const createWholeCaste = (floors: number, width: number, depth: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
+const createWholeCaste = (floors: number, width: number, depth: number, rotation: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
     const textureLoader = new TextureLoader();
     const brickTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png');
     const brickNormals = textureLoader.load('https://cdn.polyhaven.com/asset_img/map_previews/rock_wall_08/rock_wall_08_nor_gl_1k.jpg');
@@ -13,27 +12,17 @@ const createWholeCaste = (floors: number, width: number, depth: number): { base:
     const towerHeadNormals = textureLoader.load('https://cdn.polyhaven.com/asset_img/map_previews/japanese_stone_wall/japanese_stone_wall_nor_gl_1k.jpg')
 
     const base = createCastleBase(floors, width, depth, new Texture().copy(brickTexture), new Texture().copy(brickNormals));
+    base.castleBase.geometry.computeBoundingBox();
+    base.castleBase.geometry.computeVertexNormals();
 
     const towerGroup1 = new Group(), towerGroup2 = new Group(), towerGroup3 = new Group(), towerGroup4 = new Group();
     const towers = new Group();
     const towerHeads = []
     const towerObjects = []
     for ( let i = 0; i < 4; i++) {
-        towerObjects.push(createCastleTower(floors, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
+        towerObjects.push(createCastleTower(floors, new Texture().copy(brickTexture), new Texture().copy(brickNormals), rotation));
         towerHeads.push(createCastleTowerHead(towerHeadTexture, towerHeadNormals));
     }
-
-    const vertexNormalsHelpers: VertexNormalsHelper[] = [];
-    for( const tower of towerObjects ) {
-        vertexNormalsHelpers.push(new VertexNormalsHelper(tower));
-    }
-    for( const towerHead of towerHeads ) {
-        vertexNormalsHelpers.push(new VertexNormalsHelper(towerHead));
-    }
-    for( const window of base.windows ) {
-        vertexNormalsHelpers.push(new VertexNormalsHelper(window));
-    }
-    vertexNormalsHelpers.push(new VertexNormalsHelper(base.castleBase));
 
     towerHeads[0].position.setY(floors*2.7 + 4 + .5);
     towerHeads[1].position.setY(floors*2.7 + 4 + .5);
@@ -61,11 +50,11 @@ const createWholeCaste = (floors: number, width: number, depth: number): { base:
                 if( object instanceof Mesh ) {
                     object.geometry.computeVertexNormals();
                     object.geometry.computeBoundingBox();
-                    object.geometry.computeBoundingSphere();
                 }
             })
         } else if( tower instanceof Mesh ) {
             tower.geometry.computeVertexNormals();
+            tower.geometry.computeBoundingBox();
         }
     });
 
@@ -73,6 +62,19 @@ const createWholeCaste = (floors: number, width: number, depth: number): { base:
     for( const window of base.windows) {
         windows.add(window);
     }
+
+    const vertexNormalsHelpers: VertexNormalsHelper[] = [];
+    for( const tower of towerObjects ) {
+        vertexNormalsHelpers.push(new VertexNormalsHelper(tower));
+    }
+    for( const towerHead of towerHeads ) {
+        vertexNormalsHelpers.push(new VertexNormalsHelper(towerHead));
+    }
+    for( const window of base.windows ) {
+        window.geometry.computeBoundingBox();
+        vertexNormalsHelpers.push(new VertexNormalsHelper(window));
+    }
+    vertexNormalsHelpers.push(new VertexNormalsHelper(base.castleBase));
 
     return {base: {castleBase: base.castleBase, windows}, towers, normals: vertexNormalsHelpers};
 }

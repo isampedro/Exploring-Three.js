@@ -133,9 +133,10 @@ const Scene = () => {
         };
 
         catapult.traverse(item => updateMesh(item));
+        const rotation = 1.76;
 
         let width = 17, depth = 13, floors = 6;
-        let wholeCastle = createWholeCaste(floors, width, depth);
+        let wholeCastle = createWholeCaste(floors, width, depth, rotation);
         const castleGroup = new THREE.Group();
         castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
         castleGroup.castShadow = true;
@@ -184,7 +185,7 @@ const Scene = () => {
             wholeScene.scene.remove(castleGroup);
             width = value;
             castleGroup.clear();
-            wholeCastle = createWholeCaste(floors, width, depth);
+            wholeCastle = createWholeCaste(floors, width, depth, rotation);
             castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
             wholeScene.scene.add(castleGroup);
         });
@@ -192,7 +193,7 @@ const Scene = () => {
             wholeScene.scene.remove(castleGroup);
             depth = value;
             castleGroup.clear();
-            wholeCastle = createWholeCaste(floors, width, depth);
+            wholeCastle = createWholeCaste(floors, width, depth, rotation);
             castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
             wholeScene.scene.add(castleGroup);
         });
@@ -200,7 +201,7 @@ const Scene = () => {
             floors = value;
             castleGroup.clear();
             wholeScene.scene.remove(...normals, castleGroup);
-            wholeCastle = createWholeCaste(floors, width, depth);
+            wholeCastle = createWholeCaste(floors, width, depth, rotation);
             castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
             for( const normal of normals) {
                 normal.update();
@@ -289,12 +290,12 @@ const Scene = () => {
                 if( ball ) wholeScene.scene.remove(ball);
                 const ballGeometry = new SphereGeometry(.2);
                 const ballLight = new PointLight(0xf07f13);
-                ballLight.intensity = .15;
+                ballLight.intensity = .5;
                 ballLight.position.set(0, 0, 0);
                 const ballTexture = new TextureLoader().load('https://cdn.polyhaven.com/asset_img/primary/rock_06.png');
-                const ballMaterial = new MeshPhongMaterial({color: 0xa43518, map: ballTexture});
-                ballMaterial.emissive = new Color(0xa43518);
-                ballMaterial.emissiveIntensity = 0.02;
+                const ballMaterial = new MeshPhongMaterial({color: 0xF4E99B, map: ballTexture});
+                ballMaterial.emissive = new Color(0xF4E99B);
+                ballMaterial.emissiveIntensity = 1.5;
                 ball = new Mesh(ballGeometry, ballMaterial);
                 ball.position.y = .2;
                 ball.add(ballLight);

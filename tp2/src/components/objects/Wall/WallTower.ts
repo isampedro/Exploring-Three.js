@@ -11,17 +11,18 @@ const createWallTower = (floors: number, texture: Texture, textureNormals: Textu
     const baseWidth = 5;
     const baseHeight = floors*2;
     const waistWidth = 3.5;
+    const waistMidWidth = 2.5;
     const headHeight = 2;
     const headInnerWidth = 3.5;
     const headOutterWidth = 4.5;
     texture.wrapT = THREE.RepeatWrapping;
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.set(20,20);
-    texture.rotation = 3*Math.PI/4;
+    texture.rotation = 1.76;
     textureNormals.wrapT = THREE.RepeatWrapping;
     textureNormals.wrapS = THREE.RepeatWrapping;
     textureNormals.repeat.set(20,20);
-    textureNormals.rotation = 3*Math.PI/4;
+    textureNormals.rotation = 1.76;
     let from = {x: 0, y: 1}, to = {x: baseWidth, y: 0}, step;
     shape.moveTo(from.x, from.y);
     step = getStep(from, to);
@@ -29,9 +30,10 @@ const createWallTower = (floors: number, texture: Texture, textureNormals: Textu
     shape.bezierCurveTo(from.x + step.x, from.y + step.y, from.x + 2*step.x, from.y + 2*step.y, to.x, to.y);
     from = to
     to = { x: waistWidth, y: from.y + baseHeight};
+    const stepWider = getStep(from, {x: waistMidWidth, y: to.y })
     // BASE
     step = getStep(from, to);
-    shape.bezierCurveTo(from.x + step.x, from.y + step.y, from.x + 2*step.x, from.y + 2*step.y, to.x, to.y);
+    shape.bezierCurveTo(from.x - stepWider.x, from.y + step.y, from.x + 2*step.x, from.y + 2*step.y, to.x, to.y);
     from = to;
     to = { x: headOutterWidth, y: from.y + headHeight/2};
     step = getStep(from, to);

@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import {Color, Mesh, Texture, TextureLoader} from "three";
-import {createMeshFromLatheStandard} from "../Meshes";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 import {Water} from "three/examples/jsm/objects/Water";
 
@@ -17,6 +16,9 @@ const createBridge = (planeColor: number, grassTexture: Texture, grassNormalMap:
     grassTexture.wrapT = THREE.RepeatWrapping;
     grassTexture.wrapS = THREE.RepeatWrapping;
     grassTexture.repeat.set(25, 50);
+    grassNormalMap.wrapT = THREE.RepeatWrapping;
+    grassNormalMap.wrapS = THREE.RepeatWrapping;
+    grassNormalMap.repeat.set(25, 50);
     return bridge;
 };
 
@@ -42,6 +44,10 @@ const createPlanePart = (planeColor: number, grassTexture: Texture, grassNormalM
     grassTexture.wrapS = THREE.RepeatWrapping;
     grassTexture.rotation = -2*Math.PI / 3;
     grassTexture.repeat.set(12, 9);
+    grassNormalMap.wrapT = THREE.RepeatWrapping;
+    grassNormalMap.wrapS = THREE.RepeatWrapping;
+    grassNormalMap.rotation = -2*Math.PI / 3;
+    grassNormalMap.repeat.set(1200, 90);
 
     const segments = 30;
     const phiLength = Math.PI*2;
