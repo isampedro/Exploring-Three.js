@@ -15,10 +15,12 @@ const createBridge = (planeColor: number, grassTexture: Texture, grassNormalMap:
     bridge.rotation.set(Math.PI / 2, 0, 0);
     grassTexture.wrapT = THREE.RepeatWrapping;
     grassTexture.wrapS = THREE.RepeatWrapping;
-    grassTexture.repeat.set(25, 50);
+    grassTexture.repeat.set(10, 10);
+    grassTexture.rotation = -6*Math.PI / 12;
     grassNormalMap.wrapT = THREE.RepeatWrapping;
     grassNormalMap.wrapS = THREE.RepeatWrapping;
-    grassNormalMap.repeat.set(25, 50);
+    grassNormalMap.repeat.set(10, 10);
+    grassTexture.rotation = -6*Math.PI / 12;
     return bridge;
 };
 
@@ -42,12 +44,12 @@ const createPlanePart = (planeColor: number, grassTexture: Texture, grassNormalM
     shape.lineTo(to.x, to.y);
     grassTexture.wrapT = THREE.RepeatWrapping;
     grassTexture.wrapS = THREE.RepeatWrapping;
-    grassTexture.rotation = -2*Math.PI / 3;
-    grassTexture.repeat.set(12, 9);
+    grassTexture.rotation = -6*Math.PI / 12;
+    grassTexture.repeat.set(500, 500);
     grassNormalMap.wrapT = THREE.RepeatWrapping;
     grassNormalMap.wrapS = THREE.RepeatWrapping;
-    grassNormalMap.rotation = -2*Math.PI / 3;
-    grassNormalMap.repeat.set(1200, 90);
+    grassNormalMap.rotation = -6*Math.PI / 12;
+    grassNormalMap.repeat.set(500, 500);
 
     const segments = 30;
     const phiLength = Math.PI*2;
@@ -70,8 +72,8 @@ const createPlane = (): { plane: Mesh, bridge: Mesh, water: Mesh, normals: Verte
     const textureLoader = new TextureLoader();
     const grassTexture = textureLoader.load("https://cdn.polyhaven.com/asset_img/primary/leafy_grass.png");
     const grassNormalMap = textureLoader.load("https://cdn.polyhaven.com/asset_img/map_previews/leafy_grass/leafy_grass_nor_gl_1k.jpg");
-    const plane = createPlanePart(planeColor, grassTexture, grassNormalMap);
-    const bridge = createBridge(planeColor, grassTexture, grassNormalMap);
+    const plane = createPlanePart(planeColor, new Texture().copy(grassTexture), new Texture().copy(grassNormalMap));
+    const bridge = createBridge(planeColor, new Texture().copy(grassTexture), new Texture().copy(grassNormalMap));
     const waterGeom = createWaterDisc();
     const water = new Water(waterGeom, {
         textureWidth: 512,
