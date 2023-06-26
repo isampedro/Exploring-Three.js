@@ -9,15 +9,18 @@ const createWholeCaste = (floors: number, width: number, depth: number): { base:
     const textureLoader = new TextureLoader();
     const brickTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png');
     const brickNormals = textureLoader.load('https://cdn.polyhaven.com/asset_img/map_previews/rock_wall_08/rock_wall_08_nor_gl_1k.jpg');
+    const towerHeadTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/primary/japanese_stone_wall.png');
+    const towerHeadNormals = textureLoader.load('https://cdn.polyhaven.com/asset_img/map_previews/japanese_stone_wall/japanese_stone_wall_nor_gl_1k.jpg')
 
-    const base = createCastleBase(floors, width, depth, new Texture().copy(brickTexture), new Texture().copy(brickTexture));
+    const base = createCastleBase(floors, width, depth, new Texture().copy(brickTexture), new Texture().copy(brickNormals));
 
     const towerGroup1 = new Group(), towerGroup2 = new Group(), towerGroup3 = new Group(), towerGroup4 = new Group();
     const towers = new Group();
-    const towerHeads = [createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead(), createCastleTowerHead()]
+    const towerHeads = []
     const towerObjects = []
     for ( let i = 0; i < 4; i++) {
-        towerObjects.push(createCastleTower(floors, new Texture().copy(brickTexture), new Texture().copy(brickTexture)));
+        towerObjects.push(createCastleTower(floors, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
+        towerHeads.push(createCastleTowerHead(towerHeadTexture, towerHeadNormals));
     }
 
     const vertexNormalsHelpers: VertexNormalsHelper[] = [];

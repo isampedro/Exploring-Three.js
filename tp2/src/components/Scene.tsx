@@ -50,9 +50,9 @@ const Scene = () => {
 
     const createDirectionalLight = () => {
         const color = 0xee5d6c;
-        const intensity = 1;
+        const intensity = 0.5;
         const light = new THREE.DirectionalLight(color, intensity);
-        light.position.set(-150, 50, -150);
+        light.position.set(-75, 30, -75);
         light.castShadow = true;
         return light;
     }
@@ -289,7 +289,7 @@ const Scene = () => {
                 if( ball ) wholeScene.scene.remove(ball);
                 const ballGeometry = new SphereGeometry(.2);
                 const ballLight = new PointLight(0xf07f13);
-                ballLight.intensity = .6;
+                ballLight.intensity = .15;
                 ballLight.position.set(0, 0, 0);
                 const ballTexture = new TextureLoader().load('https://cdn.polyhaven.com/asset_img/primary/rock_06.png');
                 const ballMaterial = new MeshPhongMaterial({color: 0xa43518, map: ballTexture});

@@ -1,4 +1,4 @@
-import {BoxGeometry, Color, Group, Mesh, MeshPhongMaterial, TextureLoader} from "three";
+import {BoxGeometry, Color, Group, Mesh, MeshPhongMaterial, Texture, TextureLoader} from "three";
 import createCatapultBase from "./Base";
 import createCatapultStandPart from "./Stand";
 import createCatapultCylinder from "./Cylinder";
@@ -7,8 +7,11 @@ import createStick from "./Stick";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 import createShovelHead from "./ShovelHead";
 
-const createWheels = (wheelSize: number, width: number, depth: number, baseHeight: number): Group[] => {
-    const wheels = [createWheel(wheelSize),createWheel(wheelSize),createWheel(wheelSize),createWheel(wheelSize)];
+const createWheels = (wheelSize: number, width: number, depth: number, baseHeight: number, texture: Texture): Group[] => {
+    const wheels = [];
+    for( let i = 0; i < 4; i++) {
+        wheels.push(createWheel(wheelSize, new Texture().copy(texture)));
+    }
 
     wheels[0].position.setX(-width/2 - wheelSize/2);
     wheels[0].position.setZ(depth/4);
@@ -35,12 +38,12 @@ const createWheels = (wheelSize: number, width: number, depth: number, baseHeigh
 
 const createStands = (standHeight: number, width: number, height: number, depth: number, baseHeight: number): Mesh[] => {
     const stands = [createCatapultStandPart(standHeight),createCatapultStandPart(standHeight)];
-    stands[0].position.setX(-3*width/8);
+    stands[0].position.setX(-3*width/8 - width/16);
     stands[0].position.setY(baseHeight);
     stands[0].position.setZ( depth/4);
     stands[0].rotation.set(0,Math.PI/2,0);
 
-    stands[1].position.setX(3*width/8);
+    stands[1].position.setX(3*width/8- width/32);
     stands[1].position.setY(baseHeight);
     stands[1].position.setZ( depth/4);
     stands[1].rotation.set(0,Math.PI/2,0);
@@ -59,7 +62,7 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], c
 
     const stands = createStands(standHeight, width, height, depth, baseHeight);
     const cylinder = createCatapultCylinder(5*width/6, .05);
-    const wheels = createWheels(wheelSize, width, depth, baseHeight);
+    const wheels = createWheels(wheelSize, width, depth, baseHeight, woodenTexture);
     const stick = createStick(stickWidth, stickWidth, depth);
     const shovelHead = createShovelHead(shovelHeadWidth, stickWidth, shovelHeadWidth);
     const counterweightDim = .5;
@@ -76,7 +79,7 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], c
     const standsCounterWeight = new Mesh(standsCounterWeightGeometry,standsCounterWeightMaterial)
     const normals: VertexNormalsHelper[] = [];
 
-    stick.position.setY(.02);
+    stick.position.setY(0);
     stick.position.setX(+.05);
     stick.position.setZ(-1);
     shovelHead.position.setY(.02);
@@ -87,7 +90,7 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], c
     base.position.setY(baseHeight);
 
     cylinder.rotation.z = Math.PI/2;
-    cylinder.position.setX(+.1);
+    cylinder.position.setX(0);
     cylinder.position.setY(standHeight);
     cylinder.position.setZ( depth/4);
 

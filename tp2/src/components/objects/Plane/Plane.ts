@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {Color, Mesh, Texture, TextureLoader, Vector3} from "three";
+import {Color, Mesh, Texture, TextureLoader} from "three";
 import {createMeshFromLatheStandard} from "../Meshes";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 import {Water} from "three/examples/jsm/objects/Water";
@@ -9,6 +9,7 @@ const createBridge = (planeColor: number, grassTexture: Texture, grassNormalMap:
     const geometryMaterial = new THREE.MeshPhongMaterial({color: planeColor, side: THREE.DoubleSide, map: grassTexture, normalMap: grassNormalMap});
     geometryMaterial.emissive = new Color(planeColor);
     geometryMaterial.emissiveIntensity = 0.05;
+    geometryMaterial.shininess = 0.9;
     const bridge = new THREE.Mesh(planeBridgeGeometry, geometryMaterial);
     bridge.position.setX(0);
     bridge.position.setZ(47);
@@ -42,14 +43,20 @@ const createPlanePart = (planeColor: number, grassTexture: Texture, grassNormalM
     grassTexture.rotation = -2*Math.PI / 3;
     grassTexture.repeat.set(12, 9);
 
-    return createMeshFromLatheStandard(shape, planeColor, grassTexture, grassNormalMap);
+    const segments = 30;
+    const phiLength = Math.PI*2;
+    const geometry = new THREE.LatheGeometry(shape.getPoints(), segments, 0, phiLength);
+    const geometryMaterial = new THREE.MeshPhongMaterial({color: planeColor, side: THREE.DoubleSide, map: grassTexture, normalMap: grassNormalMap});
+    geometryMaterial.emissive = new Color(planeColor);
+    geometryMaterial.emissiveIntensity = 0.05;
+    geometryMaterial.shininess = 0.9;
+    return new THREE.Mesh(geometry, geometryMaterial);
 };
 
 const createWaterDisc = () => {
     const castleTerrainRadius = 40;
     const castleChannelRadius = 55;
-    const geometry = new THREE.RingGeometry(castleTerrainRadius, castleChannelRadius);
-    return geometry;
+    return new THREE.RingGeometry(castleTerrainRadius, castleChannelRadius);
 };
 
 const createPlane = (): { plane: Mesh, bridge: Mesh, water: Mesh, normals: VertexNormalsHelper[]} => {
