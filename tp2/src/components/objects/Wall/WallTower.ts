@@ -17,12 +17,12 @@ const createWallTower = (floors: number, texture: Texture, textureNormals: Textu
     const headOutterWidth = 4.5;
     texture.wrapT = THREE.RepeatWrapping;
     texture.wrapS = THREE.RepeatWrapping;
-    texture.repeat.set(20,20);
+    texture.repeat.set(10,20);
     texture.rotation = 1.76;
     textureNormals.wrapT = THREE.RepeatWrapping;
     textureNormals.wrapS = THREE.RepeatWrapping;
-    textureNormals.repeat.set(20,20);
-    textureNormals.rotation = 1.76;
+    textureNormals.repeat.set(10,20);
+    textureNormals.rotation = 1.76 + Math.PI/4;
     let from = {x: 0, y: 1}, to = {x: baseWidth, y: 0}, step;
     shape.moveTo(from.x, from.y);
     step = getStep(from, to);

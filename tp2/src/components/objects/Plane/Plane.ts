@@ -11,7 +11,7 @@ const createBridge = (planeColor: number, grassTexture: Texture, grassNormalMap:
     geometryMaterial.shininess = 0.9;
     const bridge = new THREE.Mesh(planeBridgeGeometry, geometryMaterial);
     bridge.position.setX(0);
-    bridge.position.setZ(47);
+    bridge.position.setZ(48);
     bridge.rotation.set(Math.PI / 2, 0, 0);
     grassTexture.wrapT = THREE.RepeatWrapping;
     grassTexture.wrapS = THREE.RepeatWrapping;
