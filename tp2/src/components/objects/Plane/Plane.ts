@@ -49,7 +49,7 @@ const createPlanePart = (planeColor: number, grassTexture: Texture, grassNormalM
     grassNormalMap.wrapT = THREE.RepeatWrapping;
     grassNormalMap.wrapS = THREE.RepeatWrapping;
     grassNormalMap.rotation = -6*Math.PI / 12;
-    grassNormalMap.repeat.set(500, 500);
+    grassNormalMap.repeat.set(250, 250);
 
     const segments = 30;
     const phiLength = Math.PI*2;

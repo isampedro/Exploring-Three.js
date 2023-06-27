@@ -108,7 +108,7 @@ const Scene = () => {
         let floorsWall = 6;
         let wholeWall = createWholeWall(new THREE.Vector3(0, 0, 0), floorsWall, wallPolygonQ);
         const wallGroup = new THREE.Group();
-        wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
+        wallGroup.add(...wholeWall.walls, ...wholeWall.towers, /*wholeWall.castleGate*/);
         wallGroup.castShadow = true;
 
         const {group: catapult, normals: catapultNormals, cylinder, shovelHead} = createWholeCatapult();
@@ -215,7 +215,7 @@ const Scene = () => {
             floorsWall = value;
             wallGroup.clear();
             wholeWall = createWholeWall(center, floorsWall, wallPolygonQ);
-            wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
+            wallGroup.add(...wholeWall.walls, ...wholeWall.towers, /*wholeWall.castleGate*/);
             wholeScene.scene.add(wallGroup, ...normals);
         });
         wholeScene.castleFolder.add({'Q Paredes': wallPolygonQ}, "Q Paredes", 4, 8).onChange((value: number) => {
@@ -223,7 +223,7 @@ const Scene = () => {
             wallPolygonQ = Math.floor(value);
             wallGroup.clear();
             wholeWall = createWholeWall(center, floorsWall, wallPolygonQ);
-            wallGroup.add(...wholeWall.walls, ...wholeWall.towers);
+            wallGroup.add(...wholeWall.walls, ...wholeWall.towers, /*wholeWall.castleGate*/);
             if( wallPolygonQ % 2 == 0) {
                 wallGroup.rotation.y = 5*Math.PI/6;
             }
@@ -288,6 +288,7 @@ const Scene = () => {
                 isGoingDown = false;
                 isFlying = false;
                 if( ball ) wholeScene.scene.remove(ball);
+                ball?.position.set(0,0,0);
                 const ballGeometry = new SphereGeometry(.2);
                 const ballLight = new PointLight(0xf07f13);
                 ballLight.intensity = .5;
