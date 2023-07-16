@@ -6,7 +6,7 @@ const getStep = (from: {x: number, y: number}, to: {x: number, y: number}) => {
     return {x: (to.x-from.x)/2, y: (to.y-from.y)/2};
 }
 
-const createWall = (floors: number, lenght: number, texture: Texture, textureNormals: Texture): Mesh => {
+const createWall = (floors: number, lenght: number, texture: Texture): Mesh => {
     const shape = new THREE.Shape();
     const baseWidth = 2;
     const baseHeight = floors*1.3;
@@ -16,11 +16,7 @@ const createWall = (floors: number, lenght: number, texture: Texture, textureNor
     texture.rotation = -3*Math.PI/4;
     texture.wrapT = THREE.RepeatWrapping;
     texture.wrapS = THREE.RepeatWrapping;
-    texture.repeat.set(0.5, .5);
-    textureNormals.rotation = -3*Math.PI/4;
-    textureNormals.wrapT = THREE.RepeatWrapping;
-    textureNormals.wrapS = THREE.RepeatWrapping;
-    textureNormals.repeat.set(0.5, .5);
+    texture.repeat.set(.3, .3);
     let from = {x: 0, y: 0}, to = {x: baseWidth, y: 0}, step;
     shape.moveTo(from.x, from.y);
     step = getStep(from, to);
@@ -50,7 +46,7 @@ const createWall = (floors: number, lenght: number, texture: Texture, textureNor
     step = getStep(from ,to);
     shape.bezierCurveTo(from.x, from.y, from.x + step.x - 0.5, from.y + step.y, to.x, to.y);
 
-    return createFromExtrude(shape, 0xa6a7ab, lenght, texture, textureNormals);
+    return createFromExtrude(shape, 0xa6a7ab, lenght, texture);
 }
 
 export default createWall;

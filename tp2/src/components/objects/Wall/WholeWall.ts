@@ -1,11 +1,11 @@
-import {Mesh, Shape, Texture, TextureLoader, Vector3} from "three";
+import {Group, Mesh, Shape, Texture, TextureLoader, Vector3} from "three";
 import createWallTower from "./WallTower";
 import createWall from "./CastleWall";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 import {createSimpleTorch} from "../torches/SimpleTorch";
 import createCastleGate from "./CastleGate";
 
-const positionWallTowersInScene = (center: Vector3, towers: Mesh[], initialPosition: { x: number, z: number }) => {
+const positionWallTowersInScene = (center: Vector3, towers: Group[], initialPosition: { x: number, z: number }) => {
     const theta = 2 * Math.PI / towers.length;
     for (let n = 0; n < towers.length; n++) {
         towers[n].position.x = initialPosition.x * Math.cos(n * theta) - initialPosition.z * Math.sin(n * theta);
@@ -34,12 +34,12 @@ const positionWallsInScene = (center: Vector3, walls: Mesh[], initialPosition: {
     walls[walls.length - 1].position.z = initialPosition.x * Math.sin((walls.length) * theta) + initialPosition.z * Math.cos((walls.length) * theta);
 };
 
-const createWholeWall = (center: Vector3, floors: number, totalTowers: number): { walls: Mesh[], towers: Mesh[], bridge: Mesh | undefined, normals: VertexNormalsHelper[], castleGate: Mesh } => {
+const createWholeWall = (center: Vector3, floors: number, totalTowers: number): { walls: Mesh[], towers: Group[], bridge: Mesh | undefined, normals: VertexNormalsHelper[], castleGate: Mesh } => {
     const textureLoader = new TextureLoader();
     const brickTexture = textureLoader.load("https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png");
     const brickNormals = textureLoader.load("https://cdn.polyhaven.com/asset_img/map_previews/rock_wall_08/rock_wall_08_nor_gl_1k.jpg");
     const woodenTexture = textureLoader.load("https://cdn.polyhaven.com/asset_img/primary/wood_planks_dirt.png");
-    const towers: Mesh[] = [], walls: Mesh[] = [];
+    const towers: Group[] = [], walls: Mesh[] = [];
     const theta = 2 * Math.PI / totalTowers;
     const initialPosition = {x: 0, z: -30};
     const secondPosition = {
@@ -48,17 +48,16 @@ const createWholeWall = (center: Vector3, floors: number, totalTowers: number): 
     };
     const wallLength = Math.sqrt((initialPosition.x - secondPosition.x) * (initialPosition.x - secondPosition.x) + (initialPosition.z - secondPosition.z) * (initialPosition.z - secondPosition.z));
     const castleGate = createCastleGate(floors, 10, woodenTexture);
-    towers.push(createWallTower(floors, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
-    walls.push(createWall(floors, wallLength / 2 - 5, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
+    towers.push(createWallTower(floors, new Texture().copy(brickTexture)));
+    walls.push(createWall(floors, wallLength / 2 - 5, new Texture().copy(brickTexture)));
     for (let i = 1; i < totalTowers; i++) {
-        towers.push(createWallTower(floors, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
-        walls.push(createWall(floors, wallLength, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
+        towers.push(createWallTower(floors, new Texture().copy(brickTexture)));
+        walls.push(createWall(floors, wallLength, new Texture().copy(brickTexture)));
     }
-    walls.push(createWall(floors, wallLength / 2 - 5, new Texture().copy(brickTexture), new Texture().copy(brickNormals)));
+    walls.push(createWall(floors, wallLength / 2 - 5, new Texture().copy(brickTexture)));
     castleGate.position.x = (initialPosition.x + walls.length - 1) * Math.cos(0) - (initialPosition.z - walls.length + 1) * Math.sin(0);
     castleGate.position.z = (initialPosition.x + walls.length - 1) * Math.sin(0) + (initialPosition.z + walls.length - 1) * Math.cos(0);
     castleGate.rotation.y = (Math.PI) / 3;
-
     positionWallTowersInScene(center, towers, initialPosition);
     const torches = [createSimpleTorch(), createSimpleTorch()];
     positionWallsInScene(center, walls, initialPosition, torches, castleGate);
@@ -66,8 +65,12 @@ const createWholeWall = (center: Vector3, floors: number, totalTowers: number): 
 
     const normals: VertexNormalsHelper[] = [];
     for (const tower of towers) {
-        normals.push(new VertexNormalsHelper(tower));
-        tower.geometry.computeBoundingBox();
+        tower.children.forEach(child => {
+            if (child instanceof Mesh) {
+                child.geometry.computeBoundingBox()
+                normals.push(new VertexNormalsHelper(child));
+            }
+        });
     }
     for (const wall of walls) {
         normals.push(new VertexNormalsHelper(wall));

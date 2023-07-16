@@ -3,7 +3,7 @@ import * as THREE from "three";
 import {getStep} from "../AuxiliarFunctions";
 import {createMeshFromLathe, createMeshFromLatheStandard} from "../Meshes";
 
-const createCastleTowerHead = (texture: Texture, textureNormals: Texture): Mesh => {
+const createCastleTowerHead = (texture: Texture): Mesh => {
     const height = 4;
     const narrowerPartWidth = 0.1;
     const widerPartWidth = 3.5;
@@ -28,12 +28,8 @@ const createCastleTowerHead = (texture: Texture, textureNormals: Texture): Mesh 
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.set(20,20);
     texture.rotation = 3*Math.PI/4;
-    textureNormals.wrapT = THREE.RepeatWrapping;
-    textureNormals.wrapS = THREE.RepeatWrapping;
-    textureNormals.repeat.set(20,20);
-    textureNormals.rotation = 3*Math.PI/4;
 
-    return createMeshFromLathe(shape, 0x2e5797, texture, textureNormals);
+    return createMeshFromLathe(shape, 0x2e5797, texture);
 }
 
 export default createCastleTowerHead;

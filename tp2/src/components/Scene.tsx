@@ -45,7 +45,7 @@ const Scene = () => {
 
     const createAmbientLight = () => {
         const intensity = 1;
-        return new THREE.AmbientLight(0x5781f4, intensity);
+        return new THREE.AmbientLight(0xFFFFFF, intensity);
     }
 
     const createDirectionalLight = () => {
@@ -133,10 +133,9 @@ const Scene = () => {
         };
 
         catapult.traverse(item => updateMesh(item));
-        const rotation = 1.76;
 
         let width = 17, depth = 13, floors = 6;
-        let wholeCastle = createWholeCaste(floors, width, depth, rotation);
+        let wholeCastle = createWholeCaste(floors, width, depth);
         const castleGroup = new THREE.Group();
         castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
         castleGroup.castShadow = true;
@@ -185,7 +184,7 @@ const Scene = () => {
             wholeScene.scene.remove(castleGroup);
             width = value;
             castleGroup.clear();
-            wholeCastle = createWholeCaste(floors, width, depth, rotation);
+            wholeCastle = createWholeCaste(floors, width, depth);
             castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
             wholeScene.scene.add(castleGroup);
         });
@@ -193,7 +192,7 @@ const Scene = () => {
             wholeScene.scene.remove(castleGroup);
             depth = value;
             castleGroup.clear();
-            wholeCastle = createWholeCaste(floors, width, depth, rotation);
+            wholeCastle = createWholeCaste(floors, width, depth);
             castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
             wholeScene.scene.add(castleGroup);
         });
@@ -201,7 +200,7 @@ const Scene = () => {
             floors = value;
             castleGroup.clear();
             wholeScene.scene.remove(...normals, castleGroup);
-            wholeCastle = createWholeCaste(floors, width, depth, rotation);
+            wholeCastle = createWholeCaste(floors, width, depth);
             castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
             for( const normal of normals) {
                 normal.update();

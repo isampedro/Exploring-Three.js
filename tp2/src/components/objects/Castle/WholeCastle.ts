@@ -4,7 +4,7 @@ import createCastleTower from "./CastleTower";
 import createCastleTowerHead from "./CastleTowerHead";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 
-const createWholeCaste = (floors: number, width: number, depth: number, rotation: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
+const createWholeCaste = (floors: number, width: number, depth: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
     const textureLoader = new TextureLoader();
     const brickTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png');
     const brickNormals = textureLoader.load('https://cdn.polyhaven.com/asset_img/map_previews/rock_wall_08/rock_wall_08_nor_gl_1k.jpg');
@@ -20,8 +20,8 @@ const createWholeCaste = (floors: number, width: number, depth: number, rotation
     const towerHeads = []
     const towerObjects = []
     for ( let i = 0; i < 4; i++) {
-        towerObjects.push(createCastleTower(floors, new Texture().copy(brickTexture), new Texture().copy(brickNormals), rotation));
-        towerHeads.push(createCastleTowerHead(towerHeadTexture, towerHeadNormals));
+        towerObjects.push(createCastleTower(floors, new Texture().copy(brickTexture)));
+        towerHeads.push(createCastleTowerHead(towerHeadTexture));
     }
 
     towerHeads[0].position.setY(floors*2.7 + 4 + .5);
@@ -65,7 +65,12 @@ const createWholeCaste = (floors: number, width: number, depth: number, rotation
 
     const vertexNormalsHelpers: VertexNormalsHelper[] = [];
     for( const tower of towerObjects ) {
-        vertexNormalsHelpers.push(new VertexNormalsHelper(tower));
+        tower.children.forEach(child => {
+            if (child instanceof Mesh) {
+                child.geometry.computeBoundingBox()
+                vertexNormalsHelpers.push(new VertexNormalsHelper(child));
+            }
+        });
     }
     for( const towerHead of towerHeads ) {
         vertexNormalsHelpers.push(new VertexNormalsHelper(towerHead));
