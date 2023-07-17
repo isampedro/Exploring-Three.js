@@ -19,7 +19,7 @@ const createCatapultStandPart = (standHeight: number, texture: Texture): Mesh =>
     shape.lineTo(from.x, from.y);
     texture.wrapT = THREE.RepeatWrapping;
     texture.wrapS = THREE.RepeatWrapping;
-    texture.repeat.set(2, 2);
+    texture.repeat.set(.5, .5);
 
     return createFromExtrude(shape, 0x8A7F80, .2, texture);
 }

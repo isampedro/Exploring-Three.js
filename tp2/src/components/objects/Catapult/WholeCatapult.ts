@@ -52,7 +52,8 @@ const createStands = (standHeight: number, width: number, height: number, depth:
 
 const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], cylinder: Mesh, shovelHead: Mesh} => {
     const textureLoader = new TextureLoader();
-    const woodenTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/primary/wood_planks_dirt.png?height=780');
+    const woodenTexture = textureLoader.load('https://th.bing.com/th/id/R.4485ba9a2ddca554e63ce8c64f8b058e?rik=7HObLjstnGY9fQ&pid=ImgRaw&r=0');
+    const woodenTextureNoTable = textureLoader.load('https://th.bing.com/th/id/OIP.U50enectlTS59a1Ky8rkdQHaHa?w=190&h=190&c=7&r=0&o=5&pid=1.7')
     const rustTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/primary/rust_coarse_01.png');
     const group = new Group();
     const width = 2, depth = 4,baseHeight = .5, height = .2, standHeight = 3;
@@ -63,9 +64,9 @@ const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], c
 
     const stands = createStands(standHeight, width, height, depth, baseHeight, new Texture().copy(rustTexture));
     const cylinder = createCatapultCylinder(5*width/6, .05, new Texture().copy(rustTexture));
-    const wheels = createWheels(wheelSize, width, depth, baseHeight, woodenTexture);
-    const stick = createStick(stickWidth, stickWidth, depth, woodenTexture);
-    const shovelHead = createShovelHead(shovelHeadWidth, stickWidth, shovelHeadWidth, new Texture().copy(woodenTexture));
+    const wheels = createWheels(wheelSize, width, depth, baseHeight, new Texture().copy(woodenTexture));
+    const stick = createStick(3*stickWidth/4, 3*stickWidth/4, depth, new Texture().copy(woodenTextureNoTable));
+    const shovelHead = createShovelHead(shovelHeadWidth, stickWidth, shovelHeadWidth, new Texture().copy(woodenTextureNoTable));
     const counterweightDim = .5;
     const counterweightGeometry = new BoxGeometry(counterweightDim, counterweightDim, counterweightDim);
     const counterweightRust = new Texture().copy(rustTexture);
