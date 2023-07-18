@@ -4,9 +4,9 @@ import {createFromExtrude} from "../Meshes";
 
 const createCastleGate = (floors: number, length: number, texture: Texture): Mesh => {
     const shape = new THREE.Shape();
-    const baseWidth = 1;
+    const baseWidth = .3;
     const baseHeight = floors*1.3;
-    texture.rotation = -3*Math.PI/4;
+    texture.rotation = -2*Math.PI/4;
     texture.wrapT = THREE.RepeatWrapping;
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.set(0.5, .5);

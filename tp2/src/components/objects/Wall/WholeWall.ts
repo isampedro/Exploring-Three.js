@@ -13,21 +13,26 @@ const positionWallTowersInScene = (center: Vector3, towers: Group[], initialPosi
     }
 };
 
-const positionWallsInScene = (center: Vector3, walls: Mesh[], initialPosition: { x: number, z: number }, torches: Mesh[], gate: Mesh) => {
+const positionWallsInScene = (center: Vector3, walls: Mesh[], initialPosition: { x: number, z: number }, torches: Mesh[], gate: Mesh, wallLength: number) => {
     const theta = 2 * Math.PI / (walls.length - 1);
     for (let n = 0; n < walls.length; n++) {
         const thetaN = (2 * n + 1) * theta;
         if (n === 0) {
-            torches[0].position.x = (initialPosition.x * Math.cos(n * theta) - initialPosition.z * Math.sin(n * theta)) - 19;
-            torches[0].position.z = (initialPosition.x * Math.sin(n * theta) + initialPosition.z * Math.cos(n * theta)) + 13.3;
+            const positionTorch1 = {x: initialPosition.x + 5*Math.cos(Math.PI/6), z: initialPosition.z + 5*Math.sin(Math.PI/6)};
+            torches[0].position.x = (positionTorch1.x * Math.cos(0));
+            torches[0].position.z = (positionTorch1.z * Math.cos(0));
             torches[0].position.y = 5;
             torches[1].position.x = (initialPosition.x * Math.cos(n * theta) - initialPosition.z * Math.sin(n * theta)) - 4.5;
             torches[1].position.z = (initialPosition.x * Math.sin(n * theta) + initialPosition.z * Math.cos(n * theta)) + 5;
             torches[1].position.y = 5;
+            const gatePosition = {x: initialPosition.x + wallLength-1, z: initialPosition.z + (wallLength-1)/2};
+            gate.position.x = gatePosition.x * Math.cos(n * theta) - gatePosition.z * Math.sin(n * theta);
+            gate.position.z = gatePosition.x * Math.sin(n * theta) + gatePosition.z * Math.cos(n * theta);
+            gate.rotation.y = (Math.PI - thetaN) / 2;
         }
-        walls[n].rotation.y = (Math.PI - thetaN) / 2;
         walls[n].position.x = initialPosition.x * Math.cos(n * theta) - initialPosition.z * Math.sin(n * theta);
         walls[n].position.z = initialPosition.x * Math.sin(n * theta) + initialPosition.z * Math.cos(n * theta);
+        walls[n].rotation.y = (Math.PI - thetaN) / 2;
     }
     walls[walls.length - 1].rotation.y = -(Math.PI - ((2 * (walls.length - 1) - 1)) * theta) / 2;
     walls[walls.length - 1].position.x = initialPosition.x * Math.cos((walls.length) * theta) - initialPosition.z * Math.sin((walls.length) * theta);
@@ -37,8 +42,7 @@ const positionWallsInScene = (center: Vector3, walls: Mesh[], initialPosition: {
 const createWholeWall = (center: Vector3, floors: number, totalTowers: number): { walls: Mesh[], towers: Group[], bridge: Mesh | undefined, normals: VertexNormalsHelper[], castleGate: Mesh } => {
     const textureLoader = new TextureLoader();
     const brickTexture = textureLoader.load("https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png");
-    const brickNormals = textureLoader.load("https://cdn.polyhaven.com/asset_img/map_previews/rock_wall_08/rock_wall_08_nor_gl_1k.jpg");
-    const woodenTexture = textureLoader.load("https://cdn.polyhaven.com/asset_img/primary/wood_planks_dirt.png");
+    const woodenTexture = textureLoader.load("https://th.bing.com/th/id/R.4485ba9a2ddca554e63ce8c64f8b058e?rik=7HObLjstnGY9fQ&pid=ImgRaw&r=0");
     const towers: Group[] = [], walls: Mesh[] = [];
     const theta = 2 * Math.PI / totalTowers;
     const initialPosition = {x: 0, z: -30};
@@ -55,12 +59,9 @@ const createWholeWall = (center: Vector3, floors: number, totalTowers: number): 
         walls.push(createWall(floors, wallLength, new Texture().copy(brickTexture)));
     }
     walls.push(createWall(floors, wallLength / 2 - 5, new Texture().copy(brickTexture)));
-    castleGate.position.x = (initialPosition.x + walls.length - 1) * Math.cos(0) - (initialPosition.z - walls.length + 1) * Math.sin(0);
-    castleGate.position.z = (initialPosition.x + walls.length - 1) * Math.sin(0) + (initialPosition.z + walls.length - 1) * Math.cos(0);
-    castleGate.rotation.y = (Math.PI) / 3;
     positionWallTowersInScene(center, towers, initialPosition);
     const torches = [createSimpleTorch(), createSimpleTorch()];
-    positionWallsInScene(center, walls, initialPosition, torches, castleGate);
+    positionWallsInScene(center, walls, initialPosition, torches, castleGate, wallLength / 2 - 5);
     walls.push(...torches);
 
     const normals: VertexNormalsHelper[] = [];

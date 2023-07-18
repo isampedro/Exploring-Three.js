@@ -22,7 +22,6 @@ const Scene = () => {
     const sceneRef = useRef<HTMLDivElement>(null);
     const Size = 500, Divisions = 50;
     const [anguloCatapulta] = useState<number>(0);
-    const [aperturaPuerta] = useState<number>(0);
     const [normalsEnabled, setNormalsEnabled] = useState<boolean>(false);
 
     const createRenderer = () => {
@@ -46,7 +45,7 @@ const Scene = () => {
     const createAmbientLight = () => {
         const intensity = 1;
         return new THREE.AmbientLight(0xFFFFFF, intensity);
-    }
+    };
 
     const createDirectionalLight = () => {
         const color = 0xee5d6c;
@@ -55,7 +54,7 @@ const Scene = () => {
         light.position.set(-50, 20, -50);
         light.castShadow = true;
         return light;
-    }
+    };
 
     const createScene = () => {
         // @ts-ignore
@@ -68,12 +67,12 @@ const Scene = () => {
             gridHelper: new THREE.GridHelper(Size, Divisions),
             gui: new GUI(),
         };
-        scene.scene.background = new THREE.Color(0x5781f4) ;
+        scene.scene.background = new THREE.Color(0x5781f4);
         return {
             ...scene, ...{
                 renderingFolder: scene.gui.addFolder("Rendering"),
                 sceneFolder: scene.gui.addFolder("Escena"),
-                castleFolder: scene.gui.addFolder('Castillo'),
+                castleFolder: scene.gui.addFolder("Castillo"),
                 controls: new ArcballControls(scene.camera, scene.renderer.domElement, scene.scene),
                 directionalLightHelper: new DirectionalLightHelper(scene.directionalLight, 5),
                 axesHelper: new THREE.AxesHelper(1),
@@ -85,7 +84,7 @@ const Scene = () => {
         const geometry = new BoxGeometry();
         const material = new MeshStandardMaterial();
         return new Mesh(geometry, material);
-    }
+    };
 
     function degToRad(degrees: number) {
         return degrees * (Math.PI / 180);
@@ -98,7 +97,7 @@ const Scene = () => {
         sceneRef.current?.appendChild(wholeScene.renderer.domElement);
         wholeScene.controls.setGizmosVisible(false);
         wholeScene.gridHelper.visible = true;
-        let wallPolygonQ = 6
+        let wallPolygonQ = 6;
 
         const {plane, bridge, water, normals: planeNormals} = createPlane();
         const planeGroup = new THREE.Group();
@@ -108,7 +107,7 @@ const Scene = () => {
         let floorsWall = 6;
         let wholeWall = createWholeWall(new THREE.Vector3(0, 0, 0), floorsWall, wallPolygonQ);
         const wallGroup = new THREE.Group();
-        wallGroup.add(...wholeWall.walls, ...wholeWall.towers, /*wholeWall.castleGate*/);
+        wallGroup.add(...wholeWall.walls, ...wholeWall.towers, wholeWall.castleGate);
         wallGroup.castShadow = true;
 
         const {group: catapult, normals: catapultNormals, cylinder, shovelHead} = createWholeCatapult();
@@ -134,19 +133,19 @@ const Scene = () => {
 
         catapult.traverse(item => updateMesh(item));
 
-        let width = 17, depth = 13, floors = 6;
+        let width = 17, depth = 13, floors = 6, aperturaPuerta = 0;
         let wholeCastle = createWholeCaste(floors, width, depth);
         const castleGroup = new THREE.Group();
         castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
         castleGroup.castShadow = true;
         const normals = [...wholeCastle.normals, ...catapultNormals, ...wholeWall.normals, ...planeNormals];
-        for(let i = 0; i < normals.length; i++) {
+        for (let i = 0; i < normals.length; i++) {
             normals[i].update();
             normals[i].visible = false;
         }
         wholeScene.scene.add(castleGroup, wallGroup, wholeScene.camera, wholeScene.directionalLight /*, wholeScene.directionalLightHelper*/, wholeScene.ambientLight, planeGroup, catapult
             , ...normals);
-        wholeScene.renderingFolder.add({'Mapa de normales': normalsEnabled}, "Mapa de normales").onChange((value: boolean) => {
+        wholeScene.renderingFolder.add({"Mapa de normales": normalsEnabled}, "Mapa de normales").onChange((value: boolean) => {
             setNormalsEnabled(value);
             for (const normal of normals) {
                 normal.update();
@@ -154,30 +153,35 @@ const Scene = () => {
             }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.sceneFolder.add({'Angulo Catapulta': anguloCatapulta}, 'Angulo Catapulta', 0, 360).onChange((value: number) => {
+        wholeScene.sceneFolder.add({"Angulo Catapulta": anguloCatapulta}, "Angulo Catapulta", 0, 360).onChange((value: number) => {
             cube.rotation.y = degToRad(value);
             const rotationMatrix = new THREE.Matrix4().makeRotationFromEuler(cube.rotation);
             const catapultOffset = new THREE.Vector3(50, 0, 50);
             const catapultPosition = catapultOffset.applyMatrix4(rotationMatrix);
             catapult.position.copy(catapultPosition);
             catapult.lookAt(center);
-            for(const normal of normals ) {
+            for (const normal of normals) {
                 normal.update();
             }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.sceneFolder.add({'Posicion Cata': 100}, 'Posicion Cata', 90, 160).onChange((value: number) => {
+        wholeScene.sceneFolder.add({"Posicion Cata": 100}, "Posicion Cata", 90, 160).onChange((value: number) => {
             const rotationMatrix = new THREE.Matrix4().makeRotationFromEuler(cube.rotation);
-            const catapultOffset = new THREE.Vector3(value/2, 0, value/2);
+            const catapultOffset = new THREE.Vector3(value / 2, 0, value / 2);
             const catapultPosition = catapultOffset.applyMatrix4(rotationMatrix);
             catapult.position.copy(catapultPosition);
             catapult.lookAt(center);
-            for(const normal of normals ) {
+            for (const normal of normals) {
                 normal.update();
             }
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.sceneFolder.add({'Apertura Puerta': aperturaPuerta}, 'Apertura Puerta', 0, 90).onChange((value: number) => {
+        wholeScene.sceneFolder.add({"Apertura Puerta": aperturaPuerta}, "Apertura Puerta", 0, 90).onChange((value: number) => {
+            aperturaPuerta = value;
+            wholeWall.castleGate.rotation.y = (Math.PI - 2*Math.PI/(wallPolygonQ -1))/2 + value*Math.PI/(360*2);
+            wholeWall.castleGate.rotation.x = -aperturaPuerta*Math.PI/360;
+            wholeWall.castleGate.rotation.z = -aperturaPuerta*Math.PI/360;
+
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
         wholeScene.castleFolder.add({Ancho: width}, "Ancho", 10, 25).onChange((value: number) => {
@@ -202,29 +206,29 @@ const Scene = () => {
             wholeScene.scene.remove(...normals, castleGroup);
             wholeCastle = createWholeCaste(floors, width, depth);
             castleGroup.add(wholeCastle.base.castleBase, wholeCastle.base.windows, wholeCastle.towers);
-            for( const normal of normals) {
+            for (const normal of normals) {
                 normal.update();
             }
             wholeScene.scene.add(...normals);
             wholeScene.scene.add(castleGroup);
             wholeScene.renderer.render(wholeScene.scene, wholeScene.camera);
         });
-        wholeScene.castleFolder.add({'Altura Murallas': floorsWall}, "Altura Murallas", 3, 10).onChange((value: number) => {
+        wholeScene.castleFolder.add({"Altura Murallas": floorsWall}, "Altura Murallas", 3, 10).onChange((value: number) => {
             wholeScene.scene.remove(wallGroup, ...normals);
             floorsWall = value;
             wallGroup.clear();
             wholeWall = createWholeWall(center, floorsWall, wallPolygonQ);
-            wallGroup.add(...wholeWall.walls, ...wholeWall.towers, /*wholeWall.castleGate*/);
+            wallGroup.add(...wholeWall.walls, ...wholeWall.towers, wholeWall.castleGate);
             wholeScene.scene.add(wallGroup, ...normals);
         });
-        wholeScene.castleFolder.add({'Q Paredes': wallPolygonQ}, "Q Paredes", 4, 8).onChange((value: number) => {
+        wholeScene.castleFolder.add({"Q Paredes": wallPolygonQ}, "Q Paredes", 4, 8, 1).onChange((value: number) => {
             wholeScene.scene.remove(wallGroup, ...normals);
             wallPolygonQ = Math.floor(value);
             wallGroup.clear();
             wholeWall = createWholeWall(center, floorsWall, wallPolygonQ);
-            wallGroup.add(...wholeWall.walls, ...wholeWall.towers, /*wholeWall.castleGate*/);
-            if( wallPolygonQ % 2 == 0) {
-                wallGroup.rotation.y = 5*Math.PI/6;
+            wallGroup.add(...wholeWall.walls, ...wholeWall.towers, wholeWall.castleGate);
+            if (wallPolygonQ % 2 == 0) {
+                wallGroup.rotation.y = 5 * Math.PI / 6;
             }
             wholeScene.scene.add(wallGroup, ...normals);
         });
@@ -239,7 +243,7 @@ const Scene = () => {
                 camera.position.y = catapult.position.y + 5;
                 camera.lookAt(catapult.position.x, catapult.position.y, catapult.position.z);
                 return camera;
-            }
+            };
             const createCameraCitizen = () => {
                 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 camera.position.z = -60;
@@ -247,53 +251,53 @@ const Scene = () => {
                 camera.position.y = 2;
                 camera.lookAt(center.x, center.y, center.z);
                 return camera;
-            }
-            if (event.key === '1') {
+            };
+            if (event.key === "1") {
                 wholeScene.scene.remove(wholeScene.camera);
                 wholeScene.camera.clear();
                 wholeScene.camera = createCamera();
                 wholeScene.controls = new ArcballControls(wholeScene.camera, wholeScene.renderer.domElement, wholeScene.scene);
                 wholeScene.scene.add(wholeScene.camera);
-            } else if (event.key === '2') {
-                wholeScene.scene.remove(wholeScene.camera)
+            } else if (event.key === "2") {
+                wholeScene.scene.remove(wholeScene.camera);
                 wholeScene.camera.clear();
                 wholeScene.camera = createCameraCatapult();
                 wholeScene.controls = new ArcballControls(wholeScene.camera, wholeScene.renderer.domElement, wholeScene.scene);
                 wholeScene.scene.add(wholeScene.camera);
-            } else if (event.key === '3') {
-                wholeScene.scene.remove(wholeScene.camera)
+            } else if (event.key === "3") {
+                wholeScene.scene.remove(wholeScene.camera);
                 wholeScene.camera.clear();
                 wholeScene.camera = createCameraCitizen();
                 wholeScene.scene.add(wholeScene.camera);
             }
 
-            if ((event.key === 'W' || event.key === 'w')) {
+            if ((event.key === "W" || event.key === "w")) {
                 wholeScene.camera.position.z += 1;
-            } else if ((event.key === 'A' || event.key === 'a')) {
+            } else if ((event.key === "A" || event.key === "a")) {
                 wholeScene.camera.position.x += 1;
-            } else if ((event.key === 'S' || event.key === 's')) {
+            } else if ((event.key === "S" || event.key === "s")) {
                 wholeScene.camera.position.z -= 1;
-            } else if ((event.key === 'D' || event.key === 'd')) {
+            } else if ((event.key === "D" || event.key === "d")) {
                 wholeScene.camera.position.x -= 1;
-            } else if ((event.key === 'Q' || event.key === 'q')) {
+            } else if ((event.key === "Q" || event.key === "q")) {
                 wholeScene.camera.rotation.y -= .05;
-            } else if ((event.key === 'E' || event.key === 'e')) {
+            } else if ((event.key === "E" || event.key === "e")) {
                 wholeScene.camera.rotation.y += .05;
-            } else if (event.key === 'P' || event.key === 'p') {
+            } else if (event.key === "P" || event.key === "p") {
                 isThrowing = true;
                 // cylinder.rotation.x = Math.PI/4;
-            } else if ((event.key === 'R' || event.key === 'r') && !isGoingDown && !isThrowing) {
+            } else if ((event.key === "R" || event.key === "r") && !isGoingDown && !isThrowing) {
                 isThrowing = false;
                 isGoingDown = false;
                 isFlying = false;
-                if( ball ) wholeScene.scene.remove(ball);
-                ball?.position.set(0,0,0);
+                if (ball) wholeScene.scene.remove(ball);
+                ball?.position.set(0, 0, 0);
                 const ballGeometry = new SphereGeometry(.2);
                 const ballLight = new PointLight(0xf07f13);
                 ballLight.intensity = .5;
                 ballLight.position.set(0, 0, 0);
                 ballLight.distance = 10;
-                const ballTexture = new TextureLoader().load('https://cdn.polyhaven.com/asset_img/primary/rock_06.png');
+                const ballTexture = new TextureLoader().load("https://cdn.polyhaven.com/asset_img/primary/rock_06.png");
                 const ballMaterial = new MeshPhongMaterial({color: 0xF4E99B, map: ballTexture});
                 ballMaterial.emissive = new Color(0xF4E99B);
                 ballMaterial.emissiveIntensity = 1.5;
@@ -304,7 +308,7 @@ const Scene = () => {
             }
         };
 
-        document.addEventListener('keydown', handleKeyPress);
+        document.addEventListener("keydown", handleKeyPress);
         let isFlying = false;
         let dir = new Vector3();
         let t = 0;
@@ -338,10 +342,10 @@ const Scene = () => {
                     wholeScene.scene.remove(ball);
                     isFlying = false;
                 } else {
-                   // console.log(ball.position.y, (.25**2+.1**2+.1**2)/(Math.sqrt(2)*2*.001), ballIsGoingDown)
+                    // console.log(ball.position.y, (.25**2+.1**2+.1**2)/(Math.sqrt(2)*2*.001), ballIsGoingDown)
                     ball.position.x += dir.x * .5;
                     ball.position.z += dir.z * .5;
-                        ball.position.y += .5 - (t**2);
+                    ball.position.y += .5 - (t ** 2);
                 }
             }
             requestAnimationFrame(animate);
