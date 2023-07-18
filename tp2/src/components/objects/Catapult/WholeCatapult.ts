@@ -52,9 +52,9 @@ const createStands = (standHeight: number, width: number, height: number, depth:
 
 const createWholeCatapult = (): {group: Group, normals: VertexNormalsHelper[], cylinder: Mesh, shovelHead: Mesh} => {
     const textureLoader = new TextureLoader();
-    const woodenTexture = textureLoader.load('https://th.bing.com/th/id/R.4485ba9a2ddca554e63ce8c64f8b058e?rik=7HObLjstnGY9fQ&pid=ImgRaw&r=0');
-    const woodenTextureNoTable = textureLoader.load('https://th.bing.com/th/id/OIP.U50enectlTS59a1Ky8rkdQHaHa?w=190&h=190&c=7&r=0&o=5&pid=1.7')
-    const rustTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/primary/rust_coarse_01.png');
+    const woodenTexture = textureLoader.load('assets/woodenBoards.jpg');
+    const woodenTextureNoTable = textureLoader.load('assets/flatWood.jpg')
+    const rustTexture = textureLoader.load('assets/rust.webp');
     const group = new Group();
     const width = 2, depth = 4,baseHeight = .5, height = .2, standHeight = 3;
     const wheelSize = baseHeight/4;

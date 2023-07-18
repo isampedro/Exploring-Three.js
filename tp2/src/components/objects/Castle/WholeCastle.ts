@@ -6,12 +6,10 @@ import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelpe
 
 const createWholeCaste = (floors: number, width: number, depth: number): { base: { castleBase: Mesh, windows: Group }, towers: Group, normals: VertexNormalsHelper[] } => {
     const textureLoader = new TextureLoader();
-    const brickTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png');
-    const brickNormals = textureLoader.load('https://cdn.polyhaven.com/asset_img/map_previews/rock_wall_08/rock_wall_08_nor_gl_1k.jpg');
-    const towerHeadTexture = textureLoader.load('https://cdn.polyhaven.com/asset_img/primary/japanese_stone_wall.png');
-    const towerHeadNormals = textureLoader.load('https://cdn.polyhaven.com/asset_img/map_previews/japanese_stone_wall/japanese_stone_wall_nor_gl_1k.jpg')
+    const brickTexture = textureLoader.load('assets/clay.webp');
+    const towerHeadTexture = textureLoader.load('assets/japanese_stone_wall.webp');
 
-    const base = createCastleBase(floors, width, depth, new Texture().copy(brickTexture), new Texture().copy(brickNormals));
+    const base = createCastleBase(floors, width, depth, new Texture().copy(brickTexture));
     base.castleBase.geometry.computeBoundingBox();
     base.castleBase.geometry.computeVertexNormals();
 

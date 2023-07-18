@@ -296,8 +296,8 @@ const Scene = () => {
                 const ballLight = new PointLight(0xf07f13);
                 ballLight.intensity = .5;
                 ballLight.position.set(0, 0, 0);
-                ballLight.distance = 10;
-                const ballTexture = new TextureLoader().load("https://cdn.polyhaven.com/asset_img/primary/rock_06.png");
+                ballLight.distance = 50;
+                const ballTexture = new TextureLoader().load("assets/rock.webp");
                 const ballMaterial = new MeshPhongMaterial({color: 0xF4E99B, map: ballTexture});
                 ballMaterial.emissive = new Color(0xF4E99B);
                 ballMaterial.emissiveIntensity = 1.5;

@@ -53,16 +53,12 @@ const createWindowsAtSides = (x: number, height: number, depth: number, wss: num
     return windows;
 }
 
-const createCastleBase = (floorsCount: number, width: number, depth: number, texture: Texture, textureNormals: Texture): { castleBase: Mesh, windows: Mesh[] } => {
+const createCastleBase = (floorsCount: number, width: number, depth: number, texture: Texture): { castleBase: Mesh, windows: Mesh[] } => {
     const height = floorsCount*3;
     texture.rotation = -Math.PI/4;
     texture.wrapT = THREE.RepeatWrapping;
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.set(5, 5);
-    textureNormals.rotation = -Math.PI/4;
-    textureNormals.wrapT = THREE.RepeatWrapping;
-    textureNormals.wrapS = THREE.RepeatWrapping;
-    textureNormals.repeat.set(3, 3);
 
     const geometry = new THREE.BoxGeometry( width, height, depth );
     const material = new THREE.MeshPhongMaterial( {color: 0xc4c291, map: texture} );

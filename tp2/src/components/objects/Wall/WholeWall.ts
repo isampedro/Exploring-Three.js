@@ -41,8 +41,8 @@ const positionWallsInScene = (center: Vector3, walls: Mesh[], initialPosition: {
 
 const createWholeWall = (center: Vector3, floors: number, totalTowers: number): { walls: Mesh[], towers: Group[], bridge: Mesh | undefined, normals: VertexNormalsHelper[], castleGate: Mesh } => {
     const textureLoader = new TextureLoader();
-    const brickTexture = textureLoader.load("https://cdn.polyhaven.com/asset_img/renders/rock_wall_08/clay.png");
-    const woodenTexture = textureLoader.load("https://th.bing.com/th/id/R.4485ba9a2ddca554e63ce8c64f8b058e?rik=7HObLjstnGY9fQ&pid=ImgRaw&r=0");
+    const brickTexture = textureLoader.load("assets/clay.webp");
+    const woodenTexture = textureLoader.load("assets/woodenBoards.jpg");
     const towers: Group[] = [], walls: Mesh[] = [];
     const theta = 2 * Math.PI / totalTowers;
     const initialPosition = {x: 0, z: -30};
